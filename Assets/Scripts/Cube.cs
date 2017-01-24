@@ -27,7 +27,7 @@ public class Cube : MonoBehaviour {
         }
 
 #if UNITY_EDITOR
-        if (Input.GetMouseButtonDown(0)) {
+        if (Input.GetMouseButtonUp(0)) {
             RaycastHit hitInfo;
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(ray, out hitInfo, 100) && hitInfo.transform.IsChildOf(transform)) {
