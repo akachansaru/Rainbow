@@ -9,6 +9,7 @@ public class CubeBank : MonoBehaviour {
 
     public static CubeBank cubeBank;
     public static GameObject cubePrefab;
+    public static float cubeSize;
 
     /// <summary>
     /// All available cubes for the game. When they are gone, the game is over.
@@ -17,7 +18,8 @@ public class CubeBank : MonoBehaviour {
 
     private void Awake() {
         cubeBank = this;
-        cubePrefab = Resources.Load("Prefabs/CubeWhite") as GameObject;
+        cubePrefab = Resources.Load("Prefabs/Cube") as GameObject;
+        cubeSize = cubePrefab.transform.localScale.x;
         gameCubes = RandomCubeColors(maxCubes);
     }
 
