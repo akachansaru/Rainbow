@@ -10,9 +10,8 @@ public enum Color { Red, Orange, Yellow, Green, Blue, Purple, White };
 public class ColorManager : MonoBehaviour {
     public static ColorManager colorManager;
     public static BiDictionaryOneToOne<Color, UnityEngine.Color> colorToMaterial = new BiDictionaryOneToOne<Color, UnityEngine.Color>();
-
-    private static CircularDoublyLinkedList<Color> colorSequence = new CircularDoublyLinkedList<Color>();
-
+    public static CircularDoublyLinkedList<Color> colorSequence = new CircularDoublyLinkedList<Color>();
+     
     private string materialPath = "Materials/";
 
     private void Awake() {
