@@ -9,16 +9,13 @@ public enum Color { Red, Orange, Yellow, Green, Blue, Purple, White };
 
 public class ColorManager : MonoBehaviour {
     public static ColorManager colorManager;
-    public static BiDictionaryOneToOne<Color, UnityEngine.Color> colorToMaterial = new BiDictionaryOneToOne<Color, UnityEngine.Color>();
+    public static BiDictionaryOneToOne<Color, string> colorToMaterial = new BiDictionaryOneToOne<Color, string>();
     public static CircularDoublyLinkedList<Color> colorSequence = new CircularDoublyLinkedList<Color>();
-     
-    private string materialPath = "Materials/";
+    public static string materialPath = "Materials/";
 
     private void Awake() {
         colorManager = this;
         LoadDictionary();
-        Debug.Log("Dict = " + colorToMaterial.GetByFirst(Color.Yellow));
-        Debug.Log("Dict = " + colorToMaterial.GetBySecond((Resources.Load(materialPath + "Yellow") as Material).color));
         CreateColorSequence();
     }
 
@@ -29,13 +26,13 @@ public class ColorManager : MonoBehaviour {
     }
 
     void LoadDictionary() {
-        colorToMaterial.Add(Color.Red, (Resources.Load(materialPath + "Red") as Material).color);
-        colorToMaterial.Add(Color.Orange, (Resources.Load(materialPath + "Orange") as Material).color);
-        colorToMaterial.Add(Color.Yellow, (Resources.Load(materialPath + "Yellow") as Material).color);
-        colorToMaterial.Add(Color.Green, (Resources.Load(materialPath + "Green") as Material).color);
-        colorToMaterial.Add(Color.Blue, (Resources.Load(materialPath + "Blue") as Material).color);
-        colorToMaterial.Add(Color.Purple, (Resources.Load(materialPath + "Purple") as Material).color);
-        colorToMaterial.Add(Color.White, (Resources.Load(materialPath + "White") as Material).color);
+        colorToMaterial.Add(Color.Red, "Red");
+        colorToMaterial.Add(Color.Orange, "Orange");
+        colorToMaterial.Add(Color.Yellow, "Yellow");
+        colorToMaterial.Add(Color.Green, "Green");
+        colorToMaterial.Add(Color.Blue, "Blue");
+        colorToMaterial.Add(Color.Purple, "Purple");
+        colorToMaterial.Add(Color.White, "White");
     }
 
     void CreateColorSequence() {
