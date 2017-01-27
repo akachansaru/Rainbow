@@ -5,11 +5,12 @@ using UnityEngine;
 public class HandManager : MonoBehaviour {
 
     public static HandManager handManager;
-    public int handSize;
-    public float handSpacing = 0.5f;
 
-    private Color[] handColors;
-    private ArrayList hand;
+    public int handSize = 3;
+    public float handSpacing = 0.5f;
+    public int drawNum = 1;
+
+    private List<GameObject> hand = new List<GameObject>();
     private bool choosing = false;
     private Vector3 chosenBoardPosition;
 
@@ -18,25 +19,52 @@ public class HandManager : MonoBehaviour {
     }
 
     private void Start() {
-        handColors = CubeBank.cubeBank.DealCubes(handSize);
-        hand = new ArrayList();
-        CreateHandOfColoredCubes();
+        SetupHand(handSize);
     }
 
     private void Update() {
 #if UNITY_EDITOR
         if (choosing && Input.GetMouseButtonUp(0)) {
             Debug.Log("Select cube from hand");
-            RaycastHit hitInfo;
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(ray, out hitInfo, 100) && hitInfo.transform.parent.CompareTag("Valid")) { // Change tag to "Valid"
-                // Selected a cube in the hand
-                print("Hit " + hitInfo.transform.tag + " at " + hitInfo.transform.position);
-                Transform cube = hitInfo.transform.parent;
-                PlaceCube(cube);
-            }
+            ChooseCubeToPlay();
         }
 #endif
+    }
+
+    void ChooseCubeToPlay() {
+        RaycastHit hitInfo;
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        if (Physics.Raycast(ray, out hitInfo, 100) && hitInfo.transform.parent.CompareTag("Valid")) {
+            // Selected a cube in the hand
+            print("Hit " + hitInfo.transform.tag + " at " + hitInfo.transform.position);
+            Transform cube = hitInfo.transform.parent;
+            PlaceCube(cube);
+            SetupHand(drawNum);
+        }
+    }
+
+    void SetupHand(int newCubes) {
+        List<Color> newColors = CubeBank.cubeBank.DealColors(newCubes);
+        DealCubes(newCubes, newColors);
+        //List<Color> handColors = new List<Color>();
+        //handColors.AddRange(newColors);
+        SortHand();
+    }
+
+    void SortHand() {
+        ColorComparer comparer = new ColorComparer();
+        hand.Sort(comparer);
+        ReorderCubes();
+    }
+
+    void ReorderCubes() {
+        float currCubePos = -((float)handSize / 2f - 0.5f) * (CubeBank.cubeSize + handSpacing);
+        for (int i = 0; i < handSize; i++) {
+            GameObject currCube = hand[i] as GameObject;
+            iTween.MoveTo(currCube, iTween.Hash("position", new Vector3(currCubePos, 0f, 0f), "islocal", true, "time", 1f));
+            currCube.transform.localRotation = Quaternion.identity;
+            currCubePos += (CubeBank.cubeSize + handSpacing);
+        }
     }
 
     void PlaceCube(Transform cube) {
@@ -50,14 +78,17 @@ public class HandManager : MonoBehaviour {
         Debug.Log("Moving cube from hand");
     }
 
-    void CreateHandOfColoredCubes() {
-        float currCubePos = -((float)handSize / 2f - 0.5f) * (CubeBank.cubeSize + handSpacing);
-        // Creates colored cubes on the gameboard as children of Hand
-        for (int i = 0; i < handSize; i++) {
+    /// <summary>
+    /// Creates colored cubes on the gameboard as children of Hand giving them the colors 
+    /// dealt out by CubeBank.DealColors(int numCubes).
+    /// </summary>
+    void DealCubes(int numCubes, List<Color> newColors) {
+        float currCubePos = -((float)numCubes / 2f - 0.5f) * (CubeBank.cubeSize + handSpacing);
+        for (int i = 0; i < numCubes; i++) {
             GameObject newCube = Instantiate(CubeBank.cubePrefab, transform);
             newCube.transform.localPosition = new Vector3(currCubePos, 0f, 0f);
-            UnityEngine.Color newColor = ColorManager.colorToMaterial.GetByFirst(handColors[i]);
-            newCube.GetComponent<MeshRenderer>().material.color = newColor;
+            string newMaterial = ColorManager.colorToMaterial.GetByFirst(newColors[i]);
+            newCube.GetComponent<MeshRenderer>().material = Resources.Load(ColorManager.materialPath + newMaterial) as Material;
             newCube.tag = "Hand";
             newCube.GetComponent<Cube>().enabled = false;
             hand.Add(newCube);
@@ -93,9 +124,10 @@ public class HandManager : MonoBehaviour {
             DeactivateCube(cube);
             bool valid = false;
             foreach (GameObject neighbor in neighbors) {
-                Debug.Log("Material: " + cube.GetComponent<MeshRenderer>().material.color);
-                if (!ColorManager.colorManager.InSequence(ColorManager.colorToMaterial.GetBySecond(cube.GetComponent<MeshRenderer>().material.color),
-                    ColorManager.colorToMaterial.GetBySecond(neighbor.GetComponent<MeshRenderer>().material.color))) {
+                Debug.Log("Material: " + cube.GetComponent<MeshRenderer>().material.name.Split(' ')[0]);
+                if (!ColorManager.colorManager.InSequence(
+                    ColorManager.colorToMaterial.GetBySecond(cube.GetComponent<MeshRenderer>().material.name.Split(' ')[0]),
+                    ColorManager.colorToMaterial.GetBySecond(neighbor.GetComponent<MeshRenderer>().material.name.Split(' ')[0]))) {
                     valid = false;
                     break;
                 } else {
