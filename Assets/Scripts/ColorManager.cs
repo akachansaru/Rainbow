@@ -19,10 +19,22 @@ public class ColorManager : MonoBehaviour {
         CreateColorSequence();
     }
 
-    public bool InSequence(Color colorOne, Color colorTwo) {
-        return ((colorOne == Color.White || colorTwo == Color.White) || 
-            (colorSequence.Find(colorOne).next.Data.Equals(colorTwo) 
+    public bool InSequence(GameObject cubeOne, GameObject cubeTwo) {
+        Color colorOne = ColorManager.colorToMaterial.GetBySecond(cubeOne.GetComponent<MeshRenderer>().material.name.Split(' ')[0]);
+        Color colorTwo = ColorManager.colorToMaterial.GetBySecond(cubeTwo.GetComponent<MeshRenderer>().material.name.Split(' ')[0]);
+        return ((colorOne == Color.White || colorTwo == Color.White) ||
+            (colorSequence.Find(colorOne).next.Data.Equals(colorTwo)
             || colorSequence.Find(colorOne).prev.Data.Equals(colorTwo)));
+    }
+
+    public bool InStrictSequence(GameObject cubeOne, GameObject cubeTwo, GameObject cubeThree) {
+        Color colorOne = ColorManager.colorToMaterial.GetBySecond(cubeOne.GetComponent<MeshRenderer>().material.name.Split(' ')[0]);
+        Color colorTwo = ColorManager.colorToMaterial.GetBySecond(cubeTwo.GetComponent<MeshRenderer>().material.name.Split(' ')[0]);
+        Color colorThree = ColorManager.colorToMaterial.GetBySecond(cubeThree.GetComponent<MeshRenderer>().material.name.Split(' ')[0]);
+        return ((colorSequence.Find(colorOne).next.Data.Equals(colorTwo)
+            && colorSequence.Find(colorTwo).next.Data.Equals(colorThree))
+            || (colorSequence.Find(colorOne).prev.Data.Equals(colorTwo)
+            && colorSequence.Find(colorTwo).prev.Data.Equals(colorThree)));
     }
 
     void LoadDictionary() {

@@ -5,6 +5,7 @@ using UnityEngine;
 public class HandManager : MonoBehaviour {
 
     public static HandManager handManager;
+    public int score = 0;
 
     public int handSize = 3;
     public float handSpacing = 0.5f;
@@ -19,7 +20,7 @@ public class HandManager : MonoBehaviour {
     }
 
     private void Start() {
-        SetupHand(handSize);
+        FillHand(handSize);
     }
 
     private void Update() {
@@ -36,14 +37,36 @@ public class HandManager : MonoBehaviour {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         if (Physics.Raycast(ray, out hitInfo, 100) && hitInfo.transform.parent.CompareTag("Valid")) {
             // Selected a cube in the hand
-            print("Hit " + hitInfo.transform.tag + " at " + hitInfo.transform.position);
             Transform cube = hitInfo.transform.parent;
             PlaceCube(cube);
-            SetupHand(drawNum);
+            CalculateScore(cube.gameObject, chosenBoardPosition);
+            FillHand(drawNum);
         }
     }
 
-    void SetupHand(int newCubes) {
+    void CalculateScore(GameObject cube, Vector3 finalPosition) {
+        List<Ray> rays;
+        List<GameObject> neighbors = DetectNeighbors(finalPosition, out rays);
+        for (int i = 0; i < rays.Count; i++) {
+            score += ScoreChain(rays[i], cube, neighbors[i], 1, 1);
+            print("score: " + score);
+        }
+    }
+
+    int ScoreChain(Ray ray, GameObject firstCube, GameObject secondCube, int chainScore, int chainNumber) {
+        ray.origin += ray.direction;
+        print("chainNumber: " + chainNumber + " chainScore: " + chainScore);
+        RaycastHit hitInfo;
+        if (Physics.Raycast(ray, out hitInfo, 1) && ColorManager.colorManager.InStrictSequence(firstCube, secondCube, hitInfo.transform.parent.gameObject)) {
+            chainNumber++;
+            chainScore += chainNumber;
+            return ScoreChain(ray, secondCube, hitInfo.transform.parent.gameObject, chainScore, chainNumber);
+        } else {
+            return chainScore;
+        }
+    }
+
+    void FillHand(int newCubes) {
         List<Color> newColors = CubeBank.cubeBank.DealColors(newCubes);
         DealCubes(newCubes, newColors);
         //List<Color> handColors = new List<Color>();
@@ -96,9 +119,9 @@ public class HandManager : MonoBehaviour {
         }
     }
 
-    ArrayList DetectNeighbors(Vector3 position) {
+    List<GameObject> DetectNeighbors(Vector3 position) {
         // Send out rays in all 6 directions with a distance of 1
-        ArrayList neighbors = new ArrayList();
+        List<GameObject> neighbors = new List<GameObject>();
         RaycastHit hitInfo;
         Ray[] rays = new Ray[] {
         new Ray(position, Vector3.left),
@@ -109,25 +132,45 @@ public class HandManager : MonoBehaviour {
         new Ray(position, Vector3.forward)
         };
 
-        for (int i = 0; i < 6; i++) {
-            if (Physics.Raycast(rays[i], out hitInfo, CubeBank.cubeSize)) {
+        foreach (Ray ray in rays) {
+            if (Physics.Raycast(ray, out hitInfo, CubeBank.cubeSize)) {
                 neighbors.Add(hitInfo.transform.parent.gameObject);
             }
         }
         return neighbors;
     }
 
+    List<GameObject> DetectNeighbors(Vector3 position, out List<Ray> hitRays) {
+        // Send out rays in all 6 directions with a distance of 1
+        List<GameObject> neighbors = new List<GameObject>();
+        RaycastHit hitInfo;
+        hitRays = new List<Ray>();
+        Ray[] rays = new Ray[] {
+        new Ray(position, Vector3.left),
+        new Ray(position, Vector3.right),
+        new Ray(position, Vector3.up),
+        new Ray(position, Vector3.down),
+        new Ray(position, Vector3.back),
+        new Ray(position, Vector3.forward)
+        };
+        print("position" + position);
+        foreach (Ray ray in rays) {
+            if (Physics.Raycast(ray, out hitInfo, CubeBank.cubeSize)) {
+                neighbors.Add(hitInfo.transform.parent.gameObject);
+                hitRays.Add(ray);
+            }
+        }
+        return neighbors;
+    }
+
     void LightUpValidCubes(Vector3 positionToPlace) {
-        ArrayList neighbors = DetectNeighbors(positionToPlace);
+        List<GameObject> neighbors = DetectNeighbors(positionToPlace);
 
         foreach (GameObject cube in hand) {
             DeactivateCube(cube);
             bool valid = false;
             foreach (GameObject neighbor in neighbors) {
-                Debug.Log("Material: " + cube.GetComponent<MeshRenderer>().material.name.Split(' ')[0]);
-                if (!ColorManager.colorManager.InSequence(
-                    ColorManager.colorToMaterial.GetBySecond(cube.GetComponent<MeshRenderer>().material.name.Split(' ')[0]),
-                    ColorManager.colorToMaterial.GetBySecond(neighbor.GetComponent<MeshRenderer>().material.name.Split(' ')[0]))) {
+                if (!ColorManager.colorManager.InSequence(cube, neighbor)) {
                     valid = false;
                     break;
                 } else {
@@ -136,7 +179,6 @@ public class HandManager : MonoBehaviour {
             }
             if (valid) {
                 ActivateCube(cube);
-                Debug.Log("Valid placement");
             }
         }
     }

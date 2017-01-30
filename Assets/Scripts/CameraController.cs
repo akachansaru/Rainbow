@@ -15,8 +15,6 @@ public class CameraController : MonoBehaviour {
             initialClickPosition = Input.mousePosition;
         }
         if (rotating) {
-            Debug.Log("Rotating");
-
             Vector3 currentClickPosition = Input.mousePosition;
             Vector3 normalizedDelta = new Vector3(initialClickPosition.x - currentClickPosition.x,
                 initialClickPosition.y - currentClickPosition.y,
