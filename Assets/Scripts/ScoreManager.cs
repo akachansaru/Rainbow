@@ -32,7 +32,12 @@ public class ScoreManager : MonoBehaviour {
     }
 
     bool GameOver() {
-        return CubeBank.cubeBank.cubesRemaining == 0 && HandManager.handManager.remainingHandSize == 0;
+        return (CubeBank.cubeBank.cubesRemaining == 0 && HandManager.handManager.remainingHandSize == 0) 
+            || NoPossibleMoves();
+    }
+
+    bool NoPossibleMoves() {
+        return false;
     }
 
     public void CalculateScore(GameObject cube, List<GameObject> neighbors, List<Ray> rays) {

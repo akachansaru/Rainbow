@@ -22,6 +22,7 @@ public class Cube : MonoBehaviour {
         }
 
 #if UNITY_EDITOR
+        // When a cube on the board is clicked, HandManager is told that a cube from the hand can be chosen to play
         if (Input.GetMouseButtonUp(0)) {
             RaycastHit hitInfo;
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);

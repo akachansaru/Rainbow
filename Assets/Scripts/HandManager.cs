@@ -8,8 +8,14 @@ public class HandManager : MonoBehaviour {
 
     public int handSize = 3;
     public int drawNum = 1;
+    public float percentGray = 0.2f;
+    public GameObject startingCube;
 
     private List<GameObject> hand = new List<GameObject>();
+    /// <summary>
+    /// Positions in 3D space of the centers of potential cube position.
+    /// </summary>
+    private List<Vector3> emptySpaces = new List<Vector3>();
     private bool choosing = false;
     private Vector3 chosenBoardPosition;
     private float handSpacing = 0.5f;
@@ -23,6 +29,7 @@ public class HandManager : MonoBehaviour {
     }
 
     private void Start() {
+        UpdateEmptySpaces(startingCube.transform.position);
         FillHand(handSize);
     }
 
@@ -42,6 +49,8 @@ public class HandManager : MonoBehaviour {
             // Selected a cube in the hand
             Transform cube = hitInfo.transform.parent;
             PlaceCube(cube);
+            UpdateEmptySpaces(chosenBoardPosition);
+            PlaceGrayCubes(percentGray);
             List<Ray> rays;
             List<GameObject> neighbors = DetectNeighbors(chosenBoardPosition, out rays);
             ScoreManager.scoreManager.CalculateScore(cube.gameObject, neighbors, rays);
@@ -49,12 +58,35 @@ public class HandManager : MonoBehaviour {
         }
     }
 
+    /// <summary>
+    /// Removes the space that a new cube was just placed in and adds all of the empty spaces around that new cube.
+    /// </summary>
+    /// <param name="usedSpace"></param>
+    void UpdateEmptySpaces(Vector3 usedSpace) {
+        emptySpaces.Remove(usedSpace);
+        foreach (Ray ray in DirectionalRays(usedSpace)) {
+            if (!Physics.Raycast(ray)) {
+                emptySpaces.Add(usedSpace + ray.direction);
+            }
+        }
+    }
+
+    void PlaceGrayCubes(float percent) {
+        int numGray = Mathf.RoundToInt(percent * emptySpaces.Count);
+        for (int i = 0; i < numGray; i++) {
+            int rand = Random.Range(0, emptySpaces.Count);
+            Vector3 randomPosition = emptySpaces[rand];
+            emptySpaces.Remove(randomPosition);
+            GameObject grayCube = Instantiate(CubeBank.cubePrefab);
+            grayCube.GetComponent<MeshRenderer>().material = Resources.Load(ColorManager.materialPath + "Gray") as Material;
+            iTween.MoveTo(grayCube, randomPosition, 1.5f);
+        }
+    }
+
     void FillHand(int newCubes) {
         List<Color> newColors;
         if (CubeBank.cubeBank.DealColors(newCubes, out newColors)) {
             DealCubes(newCubes, newColors);
-            //List<Color> handColors = new List<Color>();
-            //handColors.AddRange(newColors);
             SortHand();
         } else {
             print("Out of cubes.");
@@ -105,20 +137,27 @@ public class HandManager : MonoBehaviour {
         }
     }
 
+    /// <summary>
+    /// Returns an array of rays in each 6 directions with a distance of 1 from the specified origin.
+    /// </summary>
+    /// <param name="origin"></param>
+    /// <returns></returns>
+    Ray[] DirectionalRays(Vector3 origin) {
+        return new Ray[] {
+        new Ray(origin, Vector3.left),
+        new Ray(origin, Vector3.right),
+        new Ray(origin, Vector3.up),
+        new Ray(origin, Vector3.down),
+        new Ray(origin, Vector3.back),
+        new Ray(origin, Vector3.forward)
+        };
+    }
+
     List<GameObject> DetectNeighbors(Vector3 position) {
         // Send out rays in all 6 directions with a distance of 1
         List<GameObject> neighbors = new List<GameObject>();
         RaycastHit hitInfo;
-        Ray[] rays = new Ray[] {
-        new Ray(position, Vector3.left),
-        new Ray(position, Vector3.right),
-        new Ray(position, Vector3.up),
-        new Ray(position, Vector3.down),
-        new Ray(position, Vector3.back),
-        new Ray(position, Vector3.forward)
-        };
-
-        foreach (Ray ray in rays) {
+        foreach (Ray ray in DirectionalRays(position)) {
             if (Physics.Raycast(ray, out hitInfo, CubeBank.cubeSize)) {
                 neighbors.Add(hitInfo.transform.parent.gameObject);
             }
@@ -131,15 +170,7 @@ public class HandManager : MonoBehaviour {
         List<GameObject> neighbors = new List<GameObject>();
         RaycastHit hitInfo;
         hitRays = new List<Ray>();
-        Ray[] rays = new Ray[] {
-        new Ray(position, Vector3.left),
-        new Ray(position, Vector3.right),
-        new Ray(position, Vector3.up),
-        new Ray(position, Vector3.down),
-        new Ray(position, Vector3.back),
-        new Ray(position, Vector3.forward)
-        };
-        foreach (Ray ray in rays) {
+        foreach (Ray ray in DirectionalRays(position)) {
             if (Physics.Raycast(ray, out hitInfo, CubeBank.cubeSize)) {
                 neighbors.Add(hitInfo.transform.parent.gameObject);
                 hitRays.Add(ray);
@@ -148,9 +179,8 @@ public class HandManager : MonoBehaviour {
         return neighbors;
     }
 
-    void LightUpValidCubes(Vector3 positionToPlace) {
+    void ActivateValidCubes(Vector3 positionToPlace) {
         List<GameObject> neighbors = DetectNeighbors(positionToPlace);
-
         foreach (GameObject cube in hand) {
             DeactivateCube(cube);
             bool valid = false;
@@ -178,7 +208,7 @@ public class HandManager : MonoBehaviour {
     }
 
     public void ChooseCube(Material colorOfNeighbor, Vector3 positionToPlace) {
-        LightUpValidCubes(positionToPlace);
+        ActivateValidCubes(positionToPlace);
         choosing = true;
         chosenBoardPosition = positionToPlace;
         Debug.Log("ChooseCube");
