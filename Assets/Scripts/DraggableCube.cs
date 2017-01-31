@@ -8,8 +8,8 @@ public class DraggableCube : MonoBehaviour, IBeginDragHandler, IDragHandler {
 
     private bool inHand;
     private Vector3 dist;
-    private float posX;
-    private float posY;
+    //private float posX;
+    //private float posY;
 
 	// Use this for initialization
 	void Start () {
@@ -29,8 +29,8 @@ public class DraggableCube : MonoBehaviour, IBeginDragHandler, IDragHandler {
 
     public void OnBeginDrag(PointerEventData eventData) {
         dist = Camera.main.ScreenToWorldPoint(transform.position);
-        posX = eventData.position.x - dist.x;
-        posY = eventData.position.y - dist.y;
+        //posX = eventData.position.x - dist.x;
+        //posY = eventData.position.y - dist.y;
     }
 
     public void OnDrag(PointerEventData eventData) {

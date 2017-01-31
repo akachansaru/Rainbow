@@ -5,15 +5,18 @@ using UnityEngine;
 public class HandManager : MonoBehaviour {
 
     public static HandManager handManager;
-    public int score = 0;
 
     public int handSize = 3;
-    public float handSpacing = 0.5f;
     public int drawNum = 1;
 
     private List<GameObject> hand = new List<GameObject>();
     private bool choosing = false;
     private Vector3 chosenBoardPosition;
+    private float handSpacing = 0.5f;
+
+    public int remainingHandSize {
+        get { return hand.Count; }
+    }
 
     private void Awake() {
         handManager = this;
@@ -39,39 +42,23 @@ public class HandManager : MonoBehaviour {
             // Selected a cube in the hand
             Transform cube = hitInfo.transform.parent;
             PlaceCube(cube);
-            CalculateScore(cube.gameObject, chosenBoardPosition);
+            List<Ray> rays;
+            List<GameObject> neighbors = DetectNeighbors(chosenBoardPosition, out rays);
+            ScoreManager.scoreManager.CalculateScore(cube.gameObject, neighbors, rays);
             FillHand(drawNum);
         }
     }
 
-    void CalculateScore(GameObject cube, Vector3 finalPosition) {
-        List<Ray> rays;
-        List<GameObject> neighbors = DetectNeighbors(finalPosition, out rays);
-        for (int i = 0; i < rays.Count; i++) {
-            score += ScoreChain(rays[i], cube, neighbors[i], 1, 1);
-            print("score: " + score);
-        }
-    }
-
-    int ScoreChain(Ray ray, GameObject firstCube, GameObject secondCube, int chainScore, int chainNumber) {
-        ray.origin += ray.direction;
-        print("chainNumber: " + chainNumber + " chainScore: " + chainScore);
-        RaycastHit hitInfo;
-        if (Physics.Raycast(ray, out hitInfo, 1) && ColorManager.colorManager.InStrictSequence(firstCube, secondCube, hitInfo.transform.parent.gameObject)) {
-            chainNumber++;
-            chainScore += chainNumber;
-            return ScoreChain(ray, secondCube, hitInfo.transform.parent.gameObject, chainScore, chainNumber);
-        } else {
-            return chainScore;
-        }
-    }
-
     void FillHand(int newCubes) {
-        List<Color> newColors = CubeBank.cubeBank.DealColors(newCubes);
-        DealCubes(newCubes, newColors);
-        //List<Color> handColors = new List<Color>();
-        //handColors.AddRange(newColors);
-        SortHand();
+        List<Color> newColors;
+        if (CubeBank.cubeBank.DealColors(newCubes, out newColors)) {
+            DealCubes(newCubes, newColors);
+            //List<Color> handColors = new List<Color>();
+            //handColors.AddRange(newColors);
+            SortHand();
+        } else {
+            print("Out of cubes.");
+        }
     }
 
     void SortHand() {
@@ -98,7 +85,6 @@ public class HandManager : MonoBehaviour {
         cube.gameObject.GetComponent<Cube>().enabled = true;
         hand.Remove(cube.gameObject);
         choosing = false;
-        Debug.Log("Moving cube from hand");
     }
 
     /// <summary>
@@ -153,7 +139,6 @@ public class HandManager : MonoBehaviour {
         new Ray(position, Vector3.back),
         new Ray(position, Vector3.forward)
         };
-        print("position" + position);
         foreach (Ray ray in rays) {
             if (Physics.Raycast(ray, out hitInfo, CubeBank.cubeSize)) {
                 neighbors.Add(hitInfo.transform.parent.gameObject);
