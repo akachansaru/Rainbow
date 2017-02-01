@@ -16,13 +16,13 @@ public class ColorManager : MonoBehaviour {
     private void Awake() {
         colorManager = this;
         LoadDictionary();
-        CreateColorSequence();
+        colorSequence = CreateColorSequence();
     }
 
     public bool InSequence(GameObject cubeOne, GameObject cubeTwo) {
         Color colorOne = colorToMaterial.GetBySecond(cubeOne.GetComponent<MeshRenderer>().material.name.Split(' ')[0]);
         Color colorTwo = colorToMaterial.GetBySecond(cubeTwo.GetComponent<MeshRenderer>().material.name.Split(' ')[0]);
-        return ((colorOne == Color.White || colorTwo == Color.White) ||
+        return (colorOne != Color.Gray && colorTwo != Color.Gray) && ((colorOne == Color.White || colorTwo == Color.White) ||
             (colorSequence.Find(colorOne).next.Data.Equals(colorTwo)
             || colorSequence.Find(colorOne).prev.Data.Equals(colorTwo)));
     }
@@ -48,12 +48,14 @@ public class ColorManager : MonoBehaviour {
         colorToMaterial.Add(Color.Gray, "Gray");
     }
 
-    void CreateColorSequence() {
-        colorSequence.Add(Color.Red);
-        colorSequence.Add(Color.Orange);
-        colorSequence.Add(Color.Yellow);
-        colorSequence.Add(Color.Green);
-        colorSequence.Add(Color.Blue);
-        colorSequence.Add(Color.Purple);
+    CircularDoublyLinkedList<Color> CreateColorSequence() {
+        CircularDoublyLinkedList<Color> sequence = new CircularDoublyLinkedList<Color>();
+        sequence.Add(Color.Red);
+        sequence.Add(Color.Orange);
+        sequence.Add(Color.Yellow);
+        sequence.Add(Color.Green);
+        sequence.Add(Color.Blue);
+        sequence.Add(Color.Purple);
+        return sequence;
     }
 }

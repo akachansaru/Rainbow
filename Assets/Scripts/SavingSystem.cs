@@ -23,14 +23,11 @@ public class SavingSystem : MonoBehaviour {
             savedData.highScores.RemoveAt(0);
             savedData.highScores.Reverse();
             print("Added score 1. Count: " + savedData.highScores.Count);
-            print("Capacity: " + savedData.highScores.Capacity);
         } else if (savedData.highScores.Count < SaveValues.maxScoreCapacity) {
             savedData.highScores.Add(score);
             print("Added score 2. Count: " + savedData.highScores.Count);
-            print("Capacity: " + savedData.highScores.Capacity);
         } else {
             print("Didn't add score. Count: " + savedData.highScores.Count);
-            print("Capacity: " + savedData.highScores.Capacity);
         }
     }
 

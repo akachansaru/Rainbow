@@ -11,8 +11,13 @@ public class ScoreManager : MonoBehaviour {
     public static ScoreManager scoreManager;
     public static int score = 0;
 
+    private bool outOfMoves = false;
     private Text scoreText;
     private bool savedScore = false;
+
+    public bool OutOfMoves {
+        set { outOfMoves = value; }
+    }
 
     void Awake() {
         scoreManager = this;
@@ -33,11 +38,7 @@ public class ScoreManager : MonoBehaviour {
 
     bool GameOver() {
         return (CubeBank.cubeBank.cubesRemaining == 0 && HandManager.handManager.remainingHandSize == 0) 
-            || NoPossibleMoves();
-    }
-
-    bool NoPossibleMoves() {
-        return false;
+            || outOfMoves;
     }
 
     public void CalculateScore(GameObject cube, List<GameObject> neighbors, List<Ray> rays) {

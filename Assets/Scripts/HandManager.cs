@@ -19,43 +19,84 @@ public class HandManager : MonoBehaviour {
     private bool choosing = false;
     private Vector3 chosenBoardPosition;
     private float handSpacing = 0.5f;
+    private float handCubeMoveSpeed = 1f;
+    private float grayCubeMoveSpeed = 1.25f;
 
     public int remainingHandSize {
         get { return hand.Count; }
     }
 
-    private void Awake() {
+    void Awake() {
         handManager = this;
     }
 
-    private void Start() {
+    void Start() {
         UpdateEmptySpaces(startingCube.transform.position);
         FillHand(handSize);
     }
 
-    private void Update() {
+    private bool playerTurn = true;
+
+    void Update() {
 #if UNITY_EDITOR
-        if (choosing && Input.GetMouseButtonUp(0)) {
+        if (choosing && playerTurn && Input.GetMouseButtonUp(0)) {
             Debug.Log("Select cube from hand");
-            ChooseCubeToPlay();
+            RaycastHit hitInfo;
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            if (Physics.Raycast(ray, out hitInfo, 100) && hitInfo.transform.parent.CompareTag("Valid")) {
+                StartCoroutine(UpdateBoard(hitInfo.transform.parent));
+            }
         }
 #endif
     }
 
-    void ChooseCubeToPlay() {
-        RaycastHit hitInfo;
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        if (Physics.Raycast(ray, out hitInfo, 100) && hitInfo.transform.parent.CompareTag("Valid")) {
-            // Selected a cube in the hand
-            Transform cube = hitInfo.transform.parent;
-            PlaceCube(cube);
-            UpdateEmptySpaces(chosenBoardPosition);
-            PlaceGrayCubes(percentGray);
-            List<Ray> rays;
-            List<GameObject> neighbors = DetectNeighbors(chosenBoardPosition, out rays);
-            ScoreManager.scoreManager.CalculateScore(cube.gameObject, neighbors, rays);
-            FillHand(drawNum);
+    IEnumerator UpdateBoard(Transform cube) {
+        playerTurn = false;
+        PlaceCube(cube);
+        UpdateEmptySpaces(chosenBoardPosition);
+        PlaceGrayCubes(percentGray);
+        List<Ray> rays;
+        ScoreManager.scoreManager.CalculateScore(cube.gameObject, DetectNeighbors(chosenBoardPosition, out rays), rays);
+        yield return new WaitForSeconds(handCubeMoveSpeed + grayCubeMoveSpeed);
+        FillHand(drawNum);
+        if (OutOfMoves()) {
+            ScoreManager.scoreManager.OutOfMoves = true;
+        } else {
+            playerTurn = true;
         }
+    }
+
+    bool OutOfMoves() {
+        print("empty spaces: " + emptySpaces.Count);
+        foreach (Vector3 space in emptySpaces) {
+            bool canBePlaced = false;
+            foreach (GameObject cube in hand) {
+                canBePlaced = false;
+                print("# neighbors to empty space " + space + ": " + DetectNeighbors(space).Count);
+                foreach (GameObject neighbor in DetectNeighbors(space)) {
+                    if (!ColorManager.colorManager.InSequence(cube, neighbor)) {
+                        canBePlaced = false;
+                        print("Cube " + cube.GetComponent<MeshRenderer>().material.name + " doesn't work next to " + neighbor.GetComponent<MeshRenderer>().material.name);
+                        break;
+                    } else {
+                        canBePlaced = true;
+                        print("Cube " + cube.GetComponent<MeshRenderer>().material.name + " works next to " + neighbor.GetComponent<MeshRenderer>().material.name);
+                    }
+                }
+                // If even one cube from the hand can be placed the player is not out of moves.
+                // If the cube in hand that was just checked can't be placed continue with the loop and go onto the next cube.
+                // If I need the cube and the place it can be played, I can get it here.
+                if (canBePlaced) {
+                    print("There's still a move at " + space + " for " + cube.GetComponent<MeshRenderer>().material.name);
+                    return false;
+                } else {
+                    print("No place at " + space + " for " + cube.GetComponent<MeshRenderer>().material.name);
+                }
+            }
+        }
+        // If all of the loops complete there are no valid places and the player is out of moves.
+        print("Out of moves.");
+        return true;
     }
 
     /// <summary>
@@ -65,7 +106,7 @@ public class HandManager : MonoBehaviour {
     void UpdateEmptySpaces(Vector3 usedSpace) {
         emptySpaces.Remove(usedSpace);
         foreach (Ray ray in DirectionalRays(usedSpace)) {
-            if (!Physics.Raycast(ray)) {
+            if (!Physics.Raycast(ray) && !emptySpaces.Contains(usedSpace + ray.direction)) {
                 emptySpaces.Add(usedSpace + ray.direction);
             }
         }
@@ -76,10 +117,10 @@ public class HandManager : MonoBehaviour {
         for (int i = 0; i < numGray; i++) {
             int rand = Random.Range(0, emptySpaces.Count);
             Vector3 randomPosition = emptySpaces[rand];
-            emptySpaces.Remove(randomPosition);
+            UpdateEmptySpaces(randomPosition);
             GameObject grayCube = Instantiate(CubeBank.cubePrefab);
-            grayCube.GetComponent<MeshRenderer>().material = Resources.Load(ColorManager.materialPath + "Gray") as Material;
-            iTween.MoveTo(grayCube, randomPosition, 1.5f);
+            grayCube.GetComponent<MeshRenderer>().material = CubeBank.grayMaterial;
+            iTween.MoveTo(grayCube, iTween.Hash("position", randomPosition, "time", grayCubeMoveSpeed, "delay", handCubeMoveSpeed));
         }
     }
 
@@ -138,7 +179,7 @@ public class HandManager : MonoBehaviour {
     }
 
     /// <summary>
-    /// Returns an array of rays in each 6 directions with a distance of 1 from the specified origin.
+    /// Returns an array of rays in each 6 directions from the specified origin.
     /// </summary>
     /// <param name="origin"></param>
     /// <returns></returns>
@@ -153,20 +194,22 @@ public class HandManager : MonoBehaviour {
         };
     }
 
+    /// <summary>
+    /// Send out rays in all 6 directions from position with a distance of 1
+    /// </summary>
+    /// <param name="position"></param>
+    /// <returns></returns>
     List<GameObject> DetectNeighbors(Vector3 position) {
-        // Send out rays in all 6 directions with a distance of 1
-        List<GameObject> neighbors = new List<GameObject>();
-        RaycastHit hitInfo;
-        foreach (Ray ray in DirectionalRays(position)) {
-            if (Physics.Raycast(ray, out hitInfo, CubeBank.cubeSize)) {
-                neighbors.Add(hitInfo.transform.parent.gameObject);
-            }
-        }
-        return neighbors;
+        List<Ray> hitRays;
+        return DetectNeighbors(position, out hitRays);
     }
 
+    /// <summary>
+    /// Send out rays in all 6 directions from position with a distance of 1
+    /// </summary>
+    /// <param name="position"></param>
+    /// <returns></returns>
     List<GameObject> DetectNeighbors(Vector3 position, out List<Ray> hitRays) {
-        // Send out rays in all 6 directions with a distance of 1
         List<GameObject> neighbors = new List<GameObject>();
         RaycastHit hitInfo;
         hitRays = new List<Ray>();
@@ -179,6 +222,11 @@ public class HandManager : MonoBehaviour {
         return neighbors;
     }
 
+    /// <summary>
+    /// Checks each cube in hand against the selected board cube to see if any can be placed there. 
+    /// Activates all cubes in the hand that in color sequence with the board cube.
+    /// </summary>
+    /// <param name="positionToPlace"></param>
     void ActivateValidCubes(Vector3 positionToPlace) {
         List<GameObject> neighbors = DetectNeighbors(positionToPlace);
         foreach (GameObject cube in hand) {
