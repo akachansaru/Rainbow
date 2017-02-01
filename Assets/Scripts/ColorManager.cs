@@ -15,8 +15,10 @@ public class ColorManager : MonoBehaviour {
 
     private void Awake() {
         colorManager = this;
-        LoadDictionary();
-        colorSequence = CreateColorSequence();
+        if (colorSequence.size == 0) {
+            LoadDictionary();
+            colorSequence = CreateColorSequence();
+        }
     }
 
     public bool InSequence(GameObject cubeOne, GameObject cubeTwo) {
@@ -38,14 +40,14 @@ public class ColorManager : MonoBehaviour {
     }
 
     void LoadDictionary() {
-        colorToMaterial.Add(Color.Red, "Red");
-        colorToMaterial.Add(Color.Orange, "Orange");
-        colorToMaterial.Add(Color.Yellow, "Yellow");
-        colorToMaterial.Add(Color.Green, "Green");
-        colorToMaterial.Add(Color.Blue, "Blue");
-        colorToMaterial.Add(Color.Purple, "Purple");
-        colorToMaterial.Add(Color.White, "White");
-        colorToMaterial.Add(Color.Gray, "Gray");
+        colorToMaterial.TryAdd(Color.Red, "Red");
+        colorToMaterial.TryAdd(Color.Orange, "Orange");
+        colorToMaterial.TryAdd(Color.Yellow, "Yellow");
+        colorToMaterial.TryAdd(Color.Green, "Green");
+        colorToMaterial.TryAdd(Color.Blue, "Blue");
+        colorToMaterial.TryAdd(Color.Purple, "Purple");
+        colorToMaterial.TryAdd(Color.White, "White");
+        colorToMaterial.TryAdd(Color.Gray, "Gray");
     }
 
     CircularDoublyLinkedList<Color> CreateColorSequence() {

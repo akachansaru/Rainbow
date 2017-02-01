@@ -9,7 +9,6 @@ public class HandManager : MonoBehaviour {
     public int handSize = 3;
     public int drawNum = 1;
     public float percentGray = 0.2f;
-    public GameObject startingCube;
 
     private List<GameObject> hand = new List<GameObject>();
     /// <summary>
@@ -21,6 +20,7 @@ public class HandManager : MonoBehaviour {
     private float handSpacing = 0.5f;
     private float handCubeMoveSpeed = 1f;
     private float grayCubeMoveSpeed = 1.25f;
+    private bool playerTurn = true;
 
     public int remainingHandSize {
         get { return hand.Count; }
@@ -31,11 +31,18 @@ public class HandManager : MonoBehaviour {
     }
 
     void Start() {
+        NewGame();
+    }
+    
+    public void NewGame() {
+        CubeBank.cubeBank.PopulateNewGameColors();
+        ScoreManager.score = 0;
+        GameObject startingCube = Instantiate(CubeBank.cubePrefab, Vector3.zero, Quaternion.identity);
+        startingCube.tag = "Cube";
+        startingCube.GetComponent<Cube>().enabled = true;
         UpdateEmptySpaces(startingCube.transform.position);
         FillHand(handSize);
     }
-
-    private bool playerTurn = true;
 
     void Update() {
 #if UNITY_EDITOR

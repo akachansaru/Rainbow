@@ -6,13 +6,14 @@ using UnityEngine.UI;
 /// <summary>
 /// For use in level only
 /// </summary>
-[RequireComponent(typeof(Text))]
 public class ScoreManager : MonoBehaviour {
     public static ScoreManager scoreManager;
     public static int score = 0;
 
+    public Text scoreText;
+    public GameObject gameOverCanvas;
+
     private bool outOfMoves = false;
-    private Text scoreText;
     private bool savedScore = false;
 
     public bool OutOfMoves {
@@ -21,7 +22,6 @@ public class ScoreManager : MonoBehaviour {
 
     void Awake() {
         scoreManager = this;
-        scoreText = GetComponent<Text>();
     }
 
     void Update() {
@@ -29,6 +29,7 @@ public class ScoreManager : MonoBehaviour {
             SavingSystem.savingSystem.AddScore(score);
             SavingSystem.savingSystem.Save();
             savedScore = true;
+            gameOverCanvas.SetActive(true);
             print("Game over");
             // Bring up a panel or something with the final score then take them to high score scene
             // Option to play again

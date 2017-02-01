@@ -21,6 +21,10 @@ public class CubeBank : MonoBehaviour {
         get { return gameColors.Count; }
     }
 
+    public void PopulateNewGameColors() {
+        gameColors = RandomCubeColors(maxCubes);
+    }
+
     public bool DealColors(int numCubes, out List<Color> dealtColors) {
         if (gameColors.Count >= numCubes) {
             dealtColors = gameColors.GetRange(0, numCubes);
@@ -38,7 +42,6 @@ public class CubeBank : MonoBehaviour {
         cubePrefab = Resources.Load("Prefabs/Cube") as GameObject;
         grayMaterial = Resources.Load(ColorManager.materialPath + "Gray") as Material;
         cubeSize = cubePrefab.transform.localScale.x;
-        gameColors = RandomCubeColors(maxCubes);
     }
 
     List<Color> RandomCubeColors(int numCubes) {
