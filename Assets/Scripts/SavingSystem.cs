@@ -6,8 +6,19 @@ using System.Collections.Generic;
 public class SavingSystem : MonoBehaviour {
 
     public static SavingSystem savingSystem;
-    public static SaveValues savedData;
 
+    /// <summary>
+    /// get returns a sorted list of high scores in descending order.
+    /// </summary>
+    public List<int> HighScores {
+        get {
+            savedData.highScores.Sort();
+            savedData.highScores.Reverse();
+            return savedData.highScores;
+        }
+    }
+
+    private static SaveValues savedData;
     private string saveFilePath;
 
     void Awake() {
@@ -63,7 +74,5 @@ public class SavingSystem : MonoBehaviour {
         savedData.highScores.Sort();
         savedData.highScores.Reverse();
         print("New game");
-        print("capacity: " + savedData.highScores.Capacity);
-        print("count: " + savedData.highScores.Count);
     }
 }

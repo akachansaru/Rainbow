@@ -10,7 +10,7 @@ public class ScoreDisplay : MonoBehaviour {
 
 	void Start () {
         highScorePrefab = Resources.Load("Prefabs/HighScoreText") as GameObject;
-        List<int> highScores = SavingSystem.savedData.highScores;
+        List<int> highScores = SavingSystem.savingSystem.HighScores;
         for (int i = 0; i < highScores.Count; i++) {
             GameObject scoreObject = Instantiate(highScorePrefab, scoreContent.transform);
             if (i == 0) {

@@ -12,6 +12,7 @@ public class ScoreManager : MonoBehaviour {
 
     public Text scoreText;
     public GameObject gameOverCanvas;
+    public Text finalScoreText;
 
     private bool outOfMoves = false;
     private bool savedScore = false;
@@ -29,11 +30,14 @@ public class ScoreManager : MonoBehaviour {
             SavingSystem.savingSystem.AddScore(score);
             SavingSystem.savingSystem.Save();
             savedScore = true;
+            if (score > SavingSystem.savingSystem.HighScores[3]) {
+                // The new score is either 1st, 2nd, or 3rd
+                finalScoreText.text = "New High Score! " + score;
+            } else {
+                finalScoreText.text = "Score: " + score;
+            }
             gameOverCanvas.SetActive(true);
             print("Game over");
-            // Bring up a panel or something with the final score then take them to high score scene
-            // Option to play again
-            // Option for main menu
         }
     }
 
