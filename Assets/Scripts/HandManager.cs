@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class HandManager : MonoBehaviour {
 
@@ -9,6 +10,7 @@ public class HandManager : MonoBehaviour {
     public int handSize = 3;
     public int drawNum = 1;
     public float percentGray = 0.2f;
+    public GameObject overlayCanvas;
 
     private List<GameObject> hand = new List<GameObject>();
     /// <summary>
@@ -19,8 +21,13 @@ public class HandManager : MonoBehaviour {
     private Vector3 chosenBoardPosition;
     private float handSpacing = 0.5f;
     private float handCubeMoveSpeed = 1f;
-    private float grayCubeMoveSpeed = 1.25f;
+    private float grayCubeMoveSpeed = 0.8f;
     private bool playerTurn = true;
+    private GameObject placeHolder;
+
+    public bool PlayerTurn {
+        get { return playerTurn; }
+    }
 
     public int remainingHandSize {
         get { return hand.Count; }
@@ -28,6 +35,8 @@ public class HandManager : MonoBehaviour {
 
     void Awake() {
         handManager = this;
+        placeHolder = Instantiate(Resources.Load("Prefabs/PlaceHolder")) as GameObject;
+        placeHolder.SetActive(false);
     }
 
     void Start() {
@@ -37,33 +46,35 @@ public class HandManager : MonoBehaviour {
     public void NewGame() {
         CubeBank.cubeBank.PopulateNewGameColors();
         ScoreManager.score = 0;
-        GameObject startingCube = Instantiate(CubeBank.cubePrefab, Vector3.zero, Quaternion.identity);
+        GameObject startingCube = Instantiate(CubeBank.cubePrefab);
         startingCube.tag = "Cube";
         startingCube.GetComponent<Cube>().enabled = true;
         UpdateEmptySpaces(startingCube.transform.position);
+        LevelManager.paused = false;
         FillHand(handSize);
     }
 
     void Update() {
 #if UNITY_EDITOR
-        if (choosing && playerTurn && Input.GetMouseButtonUp(0)) {
+        if (!LevelManager.paused && choosing && playerTurn && Input.GetMouseButtonUp(0)) {
             Debug.Log("Select cube from hand");
             RaycastHit hitInfo;
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(ray, out hitInfo, 100) && hitInfo.transform.parent.CompareTag("Valid")) {
-                StartCoroutine(UpdateBoard(hitInfo.transform.parent));
+                StartCoroutine(UpdateBoard(hitInfo.transform.parent.gameObject));
             }
         }
 #endif
     }
 
-    IEnumerator UpdateBoard(Transform cube) {
+    IEnumerator UpdateBoard(GameObject cube) {
         playerTurn = false;
         PlaceCube(cube);
         UpdateEmptySpaces(chosenBoardPosition);
         PlaceGrayCubes(percentGray);
         List<Ray> rays;
-        ScoreManager.scoreManager.CalculateScore(cube.gameObject, DetectNeighbors(chosenBoardPosition, out rays), rays);
+        int cubeScore = ScoreManager.scoreManager.CalculateScore(cube, DetectNeighbors(chosenBoardPosition, out rays), rays);
+        StartCoroutine(ShowCubeScore(cube, cubeScore));
         yield return new WaitForSeconds(handCubeMoveSpeed + grayCubeMoveSpeed);
         FillHand(drawNum);
         if (OutOfMoves()) {
@@ -74,7 +85,6 @@ public class HandManager : MonoBehaviour {
     }
 
     bool OutOfMoves() {
-        print("empty spaces: " + emptySpaces.Count);
         foreach (Vector3 space in emptySpaces) {
             bool canBePlaced = false;
             foreach (GameObject cube in hand) {
@@ -157,14 +167,28 @@ public class HandManager : MonoBehaviour {
         }
     }
 
-    void PlaceCube(Transform cube) {
-        cube.parent = null;
-        cube.rotation = Quaternion.identity;
-        iTween.MoveTo(cube.gameObject, iTween.Hash("position", chosenBoardPosition, "time", 1.5f));
+    void PlaceCube(GameObject cube) {
+        placeHolder.SetActive(false);
+        cube.transform.parent = null;
+        cube.transform.rotation = Quaternion.identity;
+        iTween.MoveTo(cube.gameObject, iTween.Hash("position", chosenBoardPosition, "time", handCubeMoveSpeed));
         cube.tag = "Cube";
-        cube.gameObject.GetComponent<Cube>().enabled = true;
-        hand.Remove(cube.gameObject);
+        cube.GetComponent<Cube>().enabled = true;
+        hand.Remove(cube);
         choosing = false;
+    }
+
+    IEnumerator ShowCubeScore(GameObject cube, int cubeScore) {
+        yield return new WaitForSeconds(handCubeMoveSpeed - handCubeMoveSpeed * 0.2f);
+        GameObject text = Instantiate(Resources.Load("Prefabs/AmountScoredText"), overlayCanvas.transform) as GameObject;
+        text.transform.localPosition = Camera.main.WorldToScreenPoint(cube.transform.position);
+        text.GetComponent<Text>().text = "+" + cubeScore;
+        StartCoroutine(HideCubeScore(text));
+    }
+
+    IEnumerator HideCubeScore(GameObject text) {
+        yield return new WaitForSeconds(1f);
+        Destroy(text);
     }
 
     /// <summary>
@@ -263,6 +287,8 @@ public class HandManager : MonoBehaviour {
     }
 
     public void ChooseCube(Material colorOfNeighbor, Vector3 positionToPlace) {
+        placeHolder.transform.position = positionToPlace;
+        placeHolder.SetActive(true);
         ActivateValidCubes(positionToPlace);
         choosing = true;
         chosenBoardPosition = positionToPlace;

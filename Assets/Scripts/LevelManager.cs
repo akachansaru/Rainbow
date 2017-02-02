@@ -5,15 +5,15 @@ using UnityEngine;
 public class LevelManager : MonoBehaviour {
     public static bool paused = false;
 
-    public GameObject optionsCanvas;
+    public GameObject optionsPanel;
 
     public void OpenOptions() {
-        optionsCanvas.SetActive(true);
+        optionsPanel.SetActive(true);
         paused = true;
     }
 
     public void CloseOptions() {
-        optionsCanvas.SetActive(false);
+        optionsPanel.SetActive(false);
         paused = false;
     }
 }

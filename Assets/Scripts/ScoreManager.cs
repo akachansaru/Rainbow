@@ -11,7 +11,7 @@ public class ScoreManager : MonoBehaviour {
     public static int score = 0;
 
     public Text scoreText;
-    public GameObject gameOverCanvas;
+    public GameObject gameOverPanel;
     public Text finalScoreText;
 
     private bool outOfMoves = false;
@@ -36,7 +36,7 @@ public class ScoreManager : MonoBehaviour {
             } else {
                 finalScoreText.text = "Score: " + score;
             }
-            gameOverCanvas.SetActive(true);
+            gameOverPanel.SetActive(true);
             print("Game over");
         }
     }
@@ -46,11 +46,14 @@ public class ScoreManager : MonoBehaviour {
             || outOfMoves;
     }
 
-    public void CalculateScore(GameObject cube, List<GameObject> neighbors, List<Ray> rays) {
+    public int CalculateScore(GameObject cube, List<GameObject> neighbors, List<Ray> rays) {
+        int cubeScore = 0;
         for (int i = 0; i < rays.Count; i++) {
-            score += ScoreChain(rays[i], cube, neighbors[i], 1, 1);
-            scoreText.text = "Score: " + score;
+            cubeScore += ScoreChain(rays[i], cube, neighbors[i], 1, 1);
         }
+        score += cubeScore;
+        scoreText.text = "Score: " + score;
+        return cubeScore;
     }
 
     int ScoreChain(Ray ray, GameObject firstCube, GameObject secondCube, int chainScore, int chainNumber) {
