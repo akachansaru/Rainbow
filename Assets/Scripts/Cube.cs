@@ -26,8 +26,9 @@ public class Cube : MonoBehaviour {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(ray, out hitInfo, 100) && hitInfo.transform.IsChildOf(transform)) {
                 // Selected the location to place a cube from hand
-                HandManager.handManager.ChooseCube(hitInfo.transform.parent.gameObject.GetComponent<MeshRenderer>().material, 
-                    SelectedPosition(hitInfo));
+                HandManager.handManager.ChooseCube(GetComponent<MeshRenderer>().material, SelectedPosition(hitInfo));
+                CameraController.cameraController.SelectedPosition = SelectedPosition(hitInfo);
+                CameraController.cameraController.SelectedCube = gameObject;
             }
         }
 #endif

@@ -37,9 +37,6 @@ public class HandManager : MonoBehaviour {
         handManager = this;
         placeHolder = Instantiate(Resources.Load("Prefabs/PlaceHolder")) as GameObject;
         placeHolder.SetActive(false);
-    }
-
-    void Start() {
         NewGame();
     }
     
@@ -49,6 +46,8 @@ public class HandManager : MonoBehaviour {
         GameObject startingCube = Instantiate(CubeBank.cubePrefab);
         startingCube.tag = "Cube";
         startingCube.GetComponent<Cube>().enabled = true;
+        CameraController.cameraController.SelectedPosition = Vector3.back;
+        CameraController.cameraController.SelectedCube = startingCube;
         UpdateEmptySpaces(startingCube.transform.position);
         LevelManager.paused = false;
         FillHand(handSize);
@@ -279,10 +278,12 @@ public class HandManager : MonoBehaviour {
 
     void DeactivateCube(GameObject cube) {
         cube.tag = "Hand";
+        cube.transform.localPosition = new Vector3(cube.transform.localPosition.x, 0, 0);
     }
 
     void ActivateCube(GameObject cube) {
         cube.tag = "Valid";
+        cube.transform.localPosition = new Vector3(cube.transform.localPosition.x, cube.transform.localPosition.y + 1, 0);
         // Light up cube
     }
 
