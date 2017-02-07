@@ -35,11 +35,11 @@ public class CameraController : MonoBehaviour {
     }
 
     void MoveCamera() {
-        print("selected position: " + selectedPosition);
-        print("direction: " + (selectedPosition - selectedCube.transform.position) * 7);
-        print("distance: " + (transform.position - selectedCube.transform.position + (selectedPosition - selectedCube.transform.position)));
-        print("moving camera to: " + (selectedCube.transform.position + (selectedPosition - selectedCube.transform.position) * 7)
-            + " from: " + transform.position);
+        //print("selected position: " + selectedPosition);
+        //print("direction: " + (selectedPosition - selectedCube.transform.position) * 7);
+        //print("distance: " + (transform.position - selectedCube.transform.position + (selectedPosition - selectedCube.transform.position)));
+        //print("moving camera to: " + (selectedCube.transform.position + (selectedPosition - selectedCube.transform.position) * 7)
+        //    + " from: " + transform.position);
         Vector3 moveTo = (selectedCube.transform.position + (selectedPosition - selectedCube.transform.position) * 7);
         iTween.MoveTo(gameObject, iTween.Hash("position", moveTo, "looktarget", selectedCube.transform, "time", 2f, "name", "AutoCamera"));
     }

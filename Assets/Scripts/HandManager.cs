@@ -54,6 +54,8 @@ public class HandManager : MonoBehaviour {
     }
 
     void Update() {
+        //transform.position = camera.transform.position + new Vector3(0, -3, 6);
+        //transform.rotation = camera.transform.rotation;
 #if UNITY_EDITOR
         if (!LevelManager.paused && choosing && playerTurn && Input.GetMouseButtonUp(0)) {
             Debug.Log("Select cube from hand");
@@ -172,6 +174,7 @@ public class HandManager : MonoBehaviour {
         cube.transform.rotation = Quaternion.identity;
         iTween.MoveTo(cube.gameObject, iTween.Hash("position", chosenBoardPosition, "time", handCubeMoveSpeed));
         cube.tag = "Cube";
+        cube.layer = 0; // Default layer
         cube.GetComponent<Cube>().enabled = true;
         hand.Remove(cube);
         choosing = false;
@@ -202,6 +205,7 @@ public class HandManager : MonoBehaviour {
             string newMaterial = ColorManager.colorToMaterial.GetByFirst(newColors[i]);
             newCube.GetComponent<MeshRenderer>().material = Resources.Load(ColorManager.materialPath + newMaterial) as Material;
             newCube.tag = "Hand";
+            newCube.layer = 8; // Hand layer
             newCube.GetComponent<Cube>().enabled = false;
             hand.Add(newCube);
             currCubePos += (CubeBank.cubeSize + handSpacing);
