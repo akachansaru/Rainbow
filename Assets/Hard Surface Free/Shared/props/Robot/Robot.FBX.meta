@@ -12,9 +12,24 @@ labels:
 ModelImporter:
   serializedVersion: 19
   fileIDToRecycleName:
+    100000: Body
+    100002: Eyes
+    100004: Glass
+    100006: //RootNode
+    400000: Body
+    400002: Eyes
+    400004: Glass
+    400006: //RootNode
+    2300000: Body
+    2300002: Eyes
+    2300004: Glass
+    3300000: Body
+    3300002: Eyes
+    3300004: Glass
     4300000: Eyes
     4300002: Body
     4300004: Glass
+    11100000: //RootNode
   materials:
     importMaterials: 1
     materialName: 3
