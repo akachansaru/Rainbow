@@ -62,7 +62,6 @@ public class SavingSystem : MonoBehaviour {
         } else {
             NewGame();
         }
-        savedData.highScores.ForEach(score => { print(score + " "); });
     }
 
     void NewGame() {

@@ -11,6 +11,7 @@ public class HandManager : MonoBehaviour {
     public int drawNum = 1;
     public float percentGray = 0.2f;
     public GameObject overlayCanvas;
+    public Transform mainCamera;
 
     private List<GameObject> hand = new List<GameObject>();
     /// <summary>
@@ -175,6 +176,7 @@ public class HandManager : MonoBehaviour {
         iTween.MoveTo(cube.gameObject, iTween.Hash("position", chosenBoardPosition, "time", handCubeMoveSpeed));
         cube.tag = "Cube";
         cube.layer = 0; // Default layer
+        cube.GetComponentInChildren<Light>().gameObject.layer = 0;
         cube.GetComponent<Cube>().enabled = true;
         hand.Remove(cube);
         choosing = false;
@@ -182,9 +184,11 @@ public class HandManager : MonoBehaviour {
 
     IEnumerator ShowCubeScore(GameObject cube, int cubeScore) {
         yield return new WaitForSeconds(handCubeMoveSpeed - handCubeMoveSpeed * 0.2f);
-        GameObject text = Instantiate(Resources.Load("Prefabs/AmountScoredText"), overlayCanvas.transform) as GameObject;
-        text.transform.localPosition = Camera.main.WorldToScreenPoint(cube.transform.position);
-        text.GetComponent<Text>().text = "+" + cubeScore;
+        GameObject text = Instantiate(Resources.Load("Prefabs/AmountScoredText3D"), cube.transform) as GameObject;
+        text.transform.localPosition = Vector3.up * 1.5f;
+        //text.transform.parent = mainCamera;
+        //text.transform.localRotation = Quaternion.identity;
+        text.GetComponent<TextMesh>().text = "+" + cubeScore;
         StartCoroutine(HideCubeScore(text));
     }
 
@@ -206,6 +210,7 @@ public class HandManager : MonoBehaviour {
             newCube.GetComponent<MeshRenderer>().material = Resources.Load(ColorManager.materialPath + newMaterial) as Material;
             newCube.tag = "Hand";
             newCube.layer = 8; // Hand layer
+            newCube.GetComponentInChildren<Light>().gameObject.layer = 8;
             newCube.GetComponent<Cube>().enabled = false;
             hand.Add(newCube);
             currCubePos += (CubeBank.cubeSize + handSpacing);
