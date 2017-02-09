@@ -72,11 +72,14 @@ public class HandManager : MonoBehaviour {
     IEnumerator UpdateBoard(GameObject cube) {
         playerTurn = false;
         PlaceCube(cube);
+        // Light up each cube that scores, in order, and play a sound
+        //List<Ray> rays;
+        //int cubeScore = ScoreManager.scoreManager.CalculateScore(cube, DetectNeighbors(chosenBoardPosition, out rays), rays);
+        //StartCoroutine(ShowCubeScore(cube, cubeScore)); // Will show the score once the cube is actually at the right position
+
         UpdateEmptySpaces(chosenBoardPosition);
         PlaceGrayCubes(percentGray);
-        List<Ray> rays;
-        int cubeScore = ScoreManager.scoreManager.CalculateScore(cube, DetectNeighbors(chosenBoardPosition, out rays), rays);
-        StartCoroutine(ShowCubeScore(cube, cubeScore));
+
         yield return new WaitForSeconds(handCubeMoveSpeed + grayCubeMoveSpeed);
         FillHand(drawNum);
         if (OutOfMoves()) {
@@ -173,7 +176,10 @@ public class HandManager : MonoBehaviour {
         placeHolder.SetActive(false);
         cube.transform.parent = null;
         cube.transform.rotation = Quaternion.identity;
-        iTween.MoveTo(cube.gameObject, iTween.Hash("position", chosenBoardPosition, "time", handCubeMoveSpeed));
+        List<Ray> rays;
+        int cubeScore = ScoreManager.scoreManager.CalculateScore(cube, DetectNeighbors(chosenBoardPosition, out rays), rays);
+        iTween.MoveTo(cube.gameObject, iTween.Hash("position", chosenBoardPosition, "time", handCubeMoveSpeed, 
+            "oncomplete", "DoOnPlaced", "oncompleteparams", cubeScore));
         cube.tag = "Cube";
         cube.layer = 0; // Default layer
         cube.GetComponentInChildren<Light>().gameObject.layer = 0;
@@ -182,20 +188,20 @@ public class HandManager : MonoBehaviour {
         choosing = false;
     }
 
-    IEnumerator ShowCubeScore(GameObject cube, int cubeScore) {
-        yield return new WaitForSeconds(handCubeMoveSpeed - handCubeMoveSpeed * 0.2f);
-        GameObject text = Instantiate(Resources.Load("Prefabs/AmountScoredText3D"), cube.transform) as GameObject;
-        text.transform.localPosition = Vector3.up * 1.5f;
-        //text.transform.parent = mainCamera;
-        //text.transform.localRotation = Quaternion.identity;
-        text.GetComponent<TextMesh>().text = "+" + cubeScore;
-        StartCoroutine(HideCubeScore(text));
-    }
+    //IEnumerator ShowCubeScore(GameObject cube, int cubeScore) {
+    //    yield return new WaitForSeconds(handCubeMoveSpeed - handCubeMoveSpeed * 0.2f);
+    //    GameObject text = Instantiate(Resources.Load("Prefabs/AmountScoredText3D"), cube.transform) as GameObject;
+    //    text.transform.localPosition = Vector3.up * 1.5f;
+    //    //text.transform.parent = mainCamera;
+    //    //text.transform.localRotation = Quaternion.identity;
+    //    text.GetComponent<TextMesh>().text = "+" + cubeScore;
+    //    StartCoroutine(HideCubeScore(text));
+    //}
 
-    IEnumerator HideCubeScore(GameObject text) {
-        yield return new WaitForSeconds(1f);
-        Destroy(text);
-    }
+    //IEnumerator HideCubeScore(GameObject text) {
+    //    yield return new WaitForSeconds(1f);
+    //    Destroy(text);
+    //}
 
     /// <summary>
     /// Creates colored cubes on the gameboard as children of Hand giving them the colors 

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 
 public class Cube : MonoBehaviour {
 
@@ -65,5 +66,24 @@ public class Cube : MonoBehaviour {
             Debug.Log("Invalid face");
             return Vector3.zero;
         }
+    }
+
+    void DoOnPlaced(int cubeScore) {
+        GetComponent<AudioSource>().Play();
+        ShowCubeScore(cubeScore);
+    }
+
+    void ShowCubeScore(int cubeScore) {
+        GameObject text = Instantiate(Resources.Load("Prefabs/AmountScoredText3D"), transform) as GameObject;
+        text.transform.localPosition = Vector3.up * 1.5f;
+        //text.transform.parent = mainCamera;
+        //text.transform.localRotation = Quaternion.identity;
+        text.GetComponent<TextMesh>().text = "+" + cubeScore;
+        StartCoroutine(HideCubeScore(text));
+    }
+
+    IEnumerator HideCubeScore(GameObject text) {
+        yield return new WaitForSeconds(1f);
+        Destroy(text);
     }
 }
