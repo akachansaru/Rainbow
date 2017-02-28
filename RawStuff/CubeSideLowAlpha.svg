@@ -2,11 +2,13 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
+   xmlns:osb="http://www.openswatchbook.org/uri/2009/osb"
    xmlns:dc="http://purl.org/dc/elements/1.1/"
    xmlns:cc="http://creativecommons.org/ns#"
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="210mm"
@@ -17,7 +19,123 @@
    inkscape:version="0.92.0 r15299"
    sodipodi:docname="CubeSideLowAlpha.svg">
   <defs
-     id="defs2" />
+     id="defs2">
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient7013"
+       osb:paint="gradient">
+      <stop
+         id="stop7011"
+         offset="0"
+         style="stop-color:#000000;stop-opacity:0.29268292;" />
+      <stop
+         id="stop7009"
+         offset="1"
+         style="stop-color:#000000;stop-opacity:1;" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient6982"
+       osb:paint="solid">
+      <stop
+         style="stop-color:#000000;stop-opacity:1;"
+         offset="0"
+         id="stop6980" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient6950"
+       osb:paint="solid">
+      <stop
+         style="stop-color:#000000;stop-opacity:1;"
+         offset="0"
+         id="stop6948" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient6928"
+       osb:paint="gradient">
+      <stop
+         style="stop-color:#000000;stop-opacity:1;"
+         offset="0"
+         id="stop6924" />
+      <stop
+         style="stop-color:#000000;stop-opacity:0;"
+         offset="1"
+         id="stop6926" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient6890"
+       osb:paint="gradient">
+      <stop
+         style="stop-color:#160303;stop-opacity:1;"
+         offset="0"
+         id="stop6886" />
+      <stop
+         style="stop-color:#ffffff;stop-opacity:0;"
+         offset="1"
+         id="stop6888" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient5972"
+       osb:paint="solid">
+      <stop
+         style="stop-color:#000000;stop-opacity:1;"
+         offset="0"
+         id="stop5970" />
+    </linearGradient>
+    <filter
+       inkscape:collect="always"
+       style="color-interpolation-filters:sRGB"
+       id="filter6876"
+       x="-0.0948"
+       width="1.1896"
+       y="-0.0948"
+       height="1.1896">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="2.9625"
+         id="feGaussianBlur6878" />
+    </filter>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient6982"
+       id="linearGradient6984"
+       x1="44.592381"
+       y1="246.3512"
+       x2="133.81238"
+       y2="246.3512"
+       gradientUnits="userSpaceOnUse" />
+    <meshgradient
+       inkscape:collect="always"
+       id="meshgradient7632"
+       gradientUnits="userSpaceOnUse"
+       x="65.571465"
+       y="1.2230618"
+       gradientTransform="matrix(0.88306959,0,0,0.88306959,11.277192,95.226296)">
+      <meshrow
+         id="meshrow7634">
+        <meshpatch
+           id="meshpatch7636">
+          <stop
+             path="c 26.6667,0  53.3333,0  80,0"
+             style="stop-color:#000000;stop-opacity:1"
+             id="stop7638" />
+          <stop
+             path="c 0,26.6667  0,53.3333  0,80"
+             style="stop-color:#ffffff;stop-opacity:1"
+             id="stop7640" />
+          <stop
+             path="c -26.6667,0  -53.3333,0  -80,0"
+             style="stop-color:#000000;stop-opacity:1"
+             id="stop7642" />
+          <stop
+             path="c 0,-26.6667  0,-53.3333  0,-80"
+             style="stop-color:#ffffff;stop-opacity:1"
+             id="stop7644" />
+        </meshpatch>
+      </meshrow>
+    </meshgradient>
+  </defs>
   <sodipodi:namedview
      id="base"
      pagecolor="#ffffff"
@@ -25,9 +143,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.35"
-     inkscape:cx="-77.142857"
-     inkscape:cy="674.28571"
+     inkscape:zoom="0.98994949"
+     inkscape:cx="120.7618"
+     inkscape:cy="872.88961"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -44,7 +162,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -53,7 +171,7 @@
      inkscape:groupmode="layer"
      id="layer1">
     <rect
-       style="opacity:0.95999995;fill:#ffffff;fill-opacity:0.0776699;stroke:#000000;stroke-width:5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="opacity:0.95999995;fill:#ffffff;fill-opacity:0.50970876;stroke:#000000;stroke-width:5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect4485"
        width="75"
        height="75"
@@ -61,5 +179,32 @@
        y="94.404755"
        inkscape:export-xdpi="566.65601"
        inkscape:export-ydpi="566.65601" />
+    <rect
+       inkscape:export-ydpi="566.65601"
+       inkscape:export-xdpi="566.65601"
+       y="94.404755"
+       x="67.279762"
+       height="75"
+       width="75"
+       id="rect4483"
+       style="opacity:0.95999995;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <rect
+       inkscape:export-ydpi="508.17087"
+       inkscape:export-xdpi="508.17087"
+       y="208.8512"
+       x="51.702381"
+       height="75"
+       width="75"
+       id="rect4483-1"
+       style="opacity:0.95999995;fill-opacity:1.0;stroke:#000000;stroke-width:0;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;filter:url(#filter6876);fill:url(#linearGradient6984)" />
+    <rect
+       inkscape:export-ydpi="566.65601"
+       inkscape:export-xdpi="566.65601"
+       y="98.514023"
+       x="71.38903"
+       height="66.230225"
+       width="66.230225"
+       id="rect4483-0"
+       style="opacity:0.95999995;fill:#ffffff;fill-opacity:1;stroke:url(#meshgradient7632);stroke-width:4.41534805;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
   </g>
 </svg>

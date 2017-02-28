@@ -1,0 +1,21 @@
+fileFormatVersion: 2
+guid: 80509ed84aa5e554fb49f5cb84d29550
+timeCreated: 1486677494
+licenseType: Free
+TrueTypeFontImporter:
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: Qbicle 4 BRK
+  fontNames:
+  - Qbicle 4 BRK
+  fallbackFontReferences: []
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

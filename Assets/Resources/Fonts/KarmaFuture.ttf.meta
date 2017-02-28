@@ -1,0 +1,21 @@
+fileFormatVersion: 2
+guid: 513bc19bc9584154aa1a6e8d5f57d606
+timeCreated: 1486677494
+licenseType: Free
+TrueTypeFontImporter:
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: Karma Future
+  fontNames:
+  - Karma Future
+  fallbackFontReferences: []
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

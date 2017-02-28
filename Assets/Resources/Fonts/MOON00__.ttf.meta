@@ -1,0 +1,21 @@
+fileFormatVersion: 2
+guid: 431f9f403e666434a883a36f2c203a71
+timeCreated: 1486677494
+licenseType: Free
+TrueTypeFontImporter:
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: Moondog Zero
+  fontNames:
+  - Moondog Zero
+  fallbackFontReferences: []
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

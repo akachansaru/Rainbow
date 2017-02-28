@@ -1,0 +1,21 @@
+fileFormatVersion: 2
+guid: f109a7f6b34e3c843989b7c039801095
+timeCreated: 1486677495
+licenseType: Free
+TrueTypeFontImporter:
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: Bulwark NF
+  fontNames:
+  - Bulwark NF
+  fallbackFontReferences: []
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

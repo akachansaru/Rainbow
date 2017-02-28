@@ -10,21 +10,34 @@ public class Cube : MonoBehaviour {
     }
 
     void Update() {
-        if (Input.touchCount > 0) {
-            touch = Input.GetTouch(0);
-            RaycastHit hitInfo;
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(ray, out hitInfo, 100) && hitInfo.transform.IsChildOf(transform)) {
-                print("Hit " + hitInfo.transform.name + " at " + hitInfo.transform.position);
-                SelectedPosition(hitInfo);
-            }
-        }
+        //if (Input.touchCount > 0) {
+        //    touch = Input.GetTouch(0);
+        //    RaycastHit hitInfo;
+        //    Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        //    if (Physics.Raycast(ray, out hitInfo, 100) && hitInfo.transform.IsChildOf(transform)) {
+        //        print("Hit " + hitInfo.transform.name + " at " + hitInfo.transform.position);
+        //        SelectedPosition(hitInfo);
+        //    }
+        //}
 
 #if UNITY_EDITOR
         // When a cube on the board is clicked, HandManager is told that a cube from the hand can be chosen to play
         if (HandManager.handManager.PlayerTurn && Input.GetMouseButtonUp(0)) {
             RaycastHit hitInfo;
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            if (Physics.Raycast(ray, out hitInfo, 100) && hitInfo.transform.IsChildOf(transform)) {
+                // Selected the location to place a cube from hand
+                HandManager.handManager.ChooseCube(GetComponent<MeshRenderer>().material, SelectedPosition(hitInfo));
+                CameraController.cameraController.SelectedPosition = SelectedPosition(hitInfo);
+                CameraController.cameraController.SelectedCube = gameObject;
+            }
+        }
+#endif
+#if UNITY_ANDROID
+        // When a cube on the board is clicked, HandManager is told that a cube from the hand can be chosen to play
+        if (HandManager.handManager.PlayerTurn && Input.touchCount == 1) {
+            RaycastHit hitInfo;
+            Ray ray = Camera.main.ScreenPointToRay(Input.GetTouch(0).position);
             if (Physics.Raycast(ray, out hitInfo, 100) && hitInfo.transform.IsChildOf(transform)) {
                 // Selected the location to place a cube from hand
                 HandManager.handManager.ChooseCube(GetComponent<MeshRenderer>().material, SelectedPosition(hitInfo));
@@ -74,10 +87,8 @@ public class Cube : MonoBehaviour {
     }
 
     void ShowCubeScore(int cubeScore) {
-        GameObject text = Instantiate(Resources.Load("Prefabs/AmountScoredText3D"), transform) as GameObject;
+        GameObject text = Instantiate(Resources.Load("Prefabs/AmountScoredText"), transform) as GameObject;
         text.transform.localPosition = Vector3.up * 1.5f;
-        //text.transform.parent = mainCamera;
-        //text.transform.localRotation = Quaternion.identity;
         text.GetComponent<TextMesh>().text = "+" + cubeScore;
         StartCoroutine(HideCubeScore(text));
     }

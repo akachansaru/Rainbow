@@ -67,6 +67,16 @@ public class HandManager : MonoBehaviour {
             }
         }
 #endif
+#if UNITY_ANDROID
+        if (!LevelManager.paused && choosing && playerTurn && Input.touchCount == 1) {
+            Debug.Log("Select cube from hand");
+            RaycastHit hitInfo;
+            Ray ray = Camera.main.ScreenPointToRay(Input.GetTouch(0).position);
+            if (Physics.Raycast(ray, out hitInfo, 100) && hitInfo.transform.parent.CompareTag("Valid")) {
+                StartCoroutine(UpdateBoard(hitInfo.transform.parent.gameObject));
+            }
+        }
+#endif
     }
 
     IEnumerator UpdateBoard(GameObject cube) {
