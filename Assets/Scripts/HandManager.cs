@@ -40,15 +40,16 @@ public class HandManager : MonoBehaviour {
         placeHolder.SetActive(false);
         NewGame();
     }
-    
+
     public void NewGame() {
         CubeBank.cubeBank.PopulateNewGameColors();
         ScoreManager.score = 0;
         GameObject startingCube = Instantiate(CubeBank.cubePrefab);
         startingCube.tag = "Cube";
         startingCube.GetComponent<Cube>().enabled = true;
-        CameraController.cameraController.SelectedPosition = Vector3.back;
-        CameraController.cameraController.SelectedCube = startingCube;
+        CameraController.cameraController.MoveCamera(startingCube, Vector3.back);
+        //CameraController.cameraController.SelectedPosition = Vector3.back;
+        //CameraController.cameraController.SelectedCube = startingCube;
         UpdateEmptySpaces(startingCube.transform.position);
         LevelManager.paused = false;
         FillHand(handSize);
@@ -57,22 +58,25 @@ public class HandManager : MonoBehaviour {
     void Update() {
         //transform.position = camera.transform.position + new Vector3(0, -3, 6);
         //transform.rotation = camera.transform.rotation;
-#if UNITY_EDITOR
-        if (!LevelManager.paused && choosing && playerTurn && Input.GetMouseButtonUp(0)) {
-            Debug.Log("Select cube from hand");
-            RaycastHit hitInfo;
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(ray, out hitInfo, 100) && hitInfo.transform.parent.CompareTag("Valid")) {
-                StartCoroutine(UpdateBoard(hitInfo.transform.parent.gameObject));
-            }
-        }
-#endif
+        //#if UNITY_EDITOR
+        //        if (!LevelManager.paused && choosing && playerTurn && Input.GetMouseButtonUp(0)) {
+        //            Debug.Log("Select cube from hand");
+        //            RaycastHit hitInfo;
+        //            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        //            if (Physics.Raycast(ray, out hitInfo, 100) && hitInfo.transform.parent.CompareTag("Valid")) {
+        //                PlaceCube(hitInfo.transform.parent.gameObject);
+        //                StartCoroutine(UpdateBoard(hitInfo.transform.parent.gameObject));
+        //            }
+        //        }
+        //#endif
 #if UNITY_ANDROID
         if (!LevelManager.paused && choosing && playerTurn && Input.touchCount == 1) {
-            Debug.Log("Select cube from hand");
             RaycastHit hitInfo;
             Ray ray = Camera.main.ScreenPointToRay(Input.GetTouch(0).position);
-            if (Physics.Raycast(ray, out hitInfo, 100) && hitInfo.transform.parent.CompareTag("Valid")) {
+            if (Physics.Raycast(ray, out hitInfo, 100) && hitInfo.transform.parent.CompareTag("Valid") && Input.GetTouch(0).tapCount == 2) {
+                Debug.Log("Select cube from hand");
+                Debug.Log("Place cube dt");
+                PlaceCube(hitInfo.transform.parent.gameObject);
                 StartCoroutine(UpdateBoard(hitInfo.transform.parent.gameObject));
             }
         }
@@ -81,7 +85,6 @@ public class HandManager : MonoBehaviour {
 
     IEnumerator UpdateBoard(GameObject cube) {
         playerTurn = false;
-        PlaceCube(cube);
         // Light up each cube that scores, in order, and play a sound
         //List<Ray> rays;
         //int cubeScore = ScoreManager.scoreManager.CalculateScore(cube, DetectNeighbors(chosenBoardPosition, out rays), rays);
@@ -188,7 +191,7 @@ public class HandManager : MonoBehaviour {
         cube.transform.rotation = Quaternion.identity;
         List<Ray> rays;
         int cubeScore = ScoreManager.scoreManager.CalculateScore(cube, DetectNeighbors(chosenBoardPosition, out rays), rays);
-        iTween.MoveTo(cube.gameObject, iTween.Hash("position", chosenBoardPosition, "time", handCubeMoveSpeed, 
+        iTween.MoveTo(cube.gameObject, iTween.Hash("position", chosenBoardPosition, "time", handCubeMoveSpeed,
             "oncomplete", "DoOnPlaced", "oncompleteparams", cubeScore));
         cube.tag = "Cube";
         cube.layer = 0; // Default layer
