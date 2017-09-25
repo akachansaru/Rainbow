@@ -4,18 +4,19 @@ using UnityEngine;
 public class Cube : MonoBehaviour {
 
     private Touch touch;
-    bool hitCube = false; // TODO: what is hitCube for? Double tapping?
+    static bool hitCube = false; // TODO: what is hitCube for? Double tapping?
 
     void Update() {
 #if UNITY_ANDROID
         // When a cube on the board is tapped, HandManager is told that a cube from the hand can be chosen to play
-        if (HandManager.handManager.PlayerTurn && Input.touchCount == 1) {
+        if (HandManager.handManager.PlayerTurn && Input.touchCount == 1 && !CameraController.rotating) {
             Ray ray = Camera.main.ScreenPointToRay(Input.GetTouch(0).position);
             RaycastHit hitInfo;
             // Got rid of double tapping to select
-            if (!CameraController.cameraController.IsMoving() && Physics.Raycast(ray, out hitInfo, 500) && hitInfo.transform.IsChildOf(transform) && Input.GetTouch(0).tapCount == 1 && !hitCube) {
+            if (Physics.Raycast(ray, out hitInfo, 500) && hitInfo.transform.IsChildOf(transform) && Input.GetTouch(0).tapCount == 1 && !hitCube) {
                 hitCube = true;
                 Debug.DrawRay(ray.origin, ray.direction * 500, UnityEngine.Color.blue, 4f);
+                Debug.Log("Hit " + hitInfo.transform.name);
                 // Selected the location to place a cube from hand
                 HandManager.handManager.ChooseCube(GetComponent<MeshRenderer>().material, SelectedPosition(hitInfo));
                 //TODO: See if camera can go to "smart" position 
@@ -61,9 +62,14 @@ public class Cube : MonoBehaviour {
         }
     }
 
+    /// <summary>
+    /// Used in iTween movement in HandManager.PlaceCube
+    /// </summary>
+    /// <param name="cubeScore"></param>
     void DoOnPlaced(int cubeScore) {
         GetComponent<AudioSource>().Play();
         ShowCubeScore(cubeScore);
+        hitCube = false; //TODO: see if this fixes the static hitcube thing
     }
 
     void ShowCubeScore(int cubeScore) {

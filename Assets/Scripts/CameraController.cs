@@ -11,7 +11,7 @@ public class CameraController : MonoBehaviour {
 
     private GameObject _selectedCube;
     //private Vector3 selectedPosition;
-    private bool rotating = false;
+    public static bool rotating = false;
     private Vector2 initialClickPosition;
     private float maxZoom = 20f;
     private float minZoom = 6f;
@@ -43,9 +43,6 @@ public class CameraController : MonoBehaviour {
         _selectedCube = selectedCube;
     }
 
-    public bool IsMoving() {
-        return GetComponent<Rigidbody>().velocity.magnitude > 0;
-    }
     /// <summary>
     /// For touch devices. Follows normal touch zoom: touches moving towards each other zooms out, touches moving away zooms in. 
     /// Camera must be in perspective projection.
@@ -123,6 +120,7 @@ public class CameraController : MonoBehaviour {
             initialClickPosition = touch.position;
         }
         if (touch.phase == TouchPhase.Moved) {
+            rotating = true;
             Vector2 currentClickPosition = touch.position;
             Vector2 normalizedDelta = currentClickPosition - initialClickPosition;
             normalizedDelta.Normalize();
@@ -132,6 +130,9 @@ public class CameraController : MonoBehaviour {
             transform.Translate(-normalizedDelta * Time.deltaTime * rotateSpeed);
             transform.LookAt(_selectedCube.transform, transform.up); // Need transform.up otherwise it tries to orient the camera to world up.
             //iTween.LookUpdate(gameObject, selectedCube.transform.position, 0.5f);
+        }
+        if (touch.phase == TouchPhase.Ended) {
+            rotating = false;
         }
     }
 
