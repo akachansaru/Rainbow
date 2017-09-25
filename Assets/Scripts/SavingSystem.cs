@@ -68,8 +68,8 @@ public class SavingSystem : MonoBehaviour {
         savedData = new SaveValues();
         savedData.highScores = new List<int>();
         savedData.highScores.Add(0);
-        savedData.highScores.Add(2);
-        savedData.highScores.Add(1);
+        savedData.highScores.Add(0);
+        savedData.highScores.Add(0);
         savedData.highScores.Sort();
         savedData.highScores.Reverse();
         print("New game");

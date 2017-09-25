@@ -7,12 +7,14 @@ public class CameraController : MonoBehaviour {
 
     public float rotateSpeed = 2f;
     public float zoomSpeed = 0.5f;
+    public int cameraMoveDistance = 7;
 
     private GameObject _selectedCube;
     //private Vector3 selectedPosition;
     private bool rotating = false;
     private Vector2 initialClickPosition;
-
+    private float maxZoom = 20f;
+    private float minZoom = 6f;
 
     //public GameObject SelectedCube {
     //    set {
@@ -36,14 +38,14 @@ public class CameraController : MonoBehaviour {
     }
 
     public void MoveCamera(GameObject selectedCube, Vector3 selectedPosition) {
-        Vector3 moveTo = (selectedCube.transform.position + (selectedPosition - selectedCube.transform.position) * 7);
+        Vector3 moveTo = (selectedCube.transform.position + (selectedPosition - selectedCube.transform.position) * cameraMoveDistance);
         iTween.MoveTo(gameObject, iTween.Hash("position", moveTo, "looktarget", selectedCube.transform, "time", 2f, "name", "AutoCamera"));
         _selectedCube = selectedCube;
     }
 
-
-    private float maxZoom = 20f;
-    private float minZoom = 6f;
+    public bool IsMoving() {
+        return GetComponent<Rigidbody>().velocity.magnitude > 0;
+    }
     /// <summary>
     /// For touch devices. Follows normal touch zoom: touches moving towards each other zooms out, touches moving away zooms in. 
     /// Camera must be in perspective projection.
@@ -161,27 +163,9 @@ public class CameraController : MonoBehaviour {
                 PinchToZoom(Input.GetTouch(0), Input.GetTouch(1));
                 TwistToRotateZ();
             }
-#endif
-            //#if UNITY_EDITOR
-            //            if (Input.GetMouseButtonDown(0)) {
-            //                //iTween.StopByName("AutoCamera");
-            //                rotating = true;
-            //                initialClickPosition = Input.mousePosition;
-            //            }
-            //            if (rotating) {
-            //                Vector2 currentClickPosition = Input.mousePosition;
-            //                Vector2 normalizedDelta = currentClickPosition - initialClickPosition;
-            //                normalizedDelta.Normalize();
-            //                transform.Translate(-normalizedDelta * Time.deltaTime * rotateSpeed);
-            //                transform.LookAt(selectedCube.transform, transform.up);
-            //                //iTween.LookUpdate(gameObject, selectedCube.transform.position, 0.5f);
-            //                if (Input.GetMouseButtonUp(0)) {
-            //                    rotating = false;
-            //                }
-            //            }
-            //#endif
         } else if (LevelManager.paused && rotating) {
             rotating = false;
         }
     }
+#endif
 }

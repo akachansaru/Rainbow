@@ -56,26 +56,16 @@ public class HandManager : MonoBehaviour {
     }
 
     void Update() {
-        //transform.position = camera.transform.position + new Vector3(0, -3, 6);
-        //transform.rotation = camera.transform.rotation;
-        //#if UNITY_EDITOR
-        //        if (!LevelManager.paused && choosing && playerTurn && Input.GetMouseButtonUp(0)) {
-        //            Debug.Log("Select cube from hand");
-        //            RaycastHit hitInfo;
-        //            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        //            if (Physics.Raycast(ray, out hitInfo, 100) && hitInfo.transform.parent.CompareTag("Valid")) {
-        //                PlaceCube(hitInfo.transform.parent.gameObject);
-        //                StartCoroutine(UpdateBoard(hitInfo.transform.parent.gameObject));
-        //            }
-        //        }
-        //#endif
 #if UNITY_ANDROID
         if (!LevelManager.paused && choosing && playerTurn && Input.touchCount == 1) {
             RaycastHit hitInfo;
             Ray ray = Camera.main.ScreenPointToRay(Input.GetTouch(0).position);
-            if (Physics.Raycast(ray, out hitInfo, 100) && hitInfo.transform.parent.CompareTag("Valid") && Input.GetTouch(0).tapCount == 2) {
+            // Changed to single tap
+            if (Physics.Raycast(ray, out hitInfo, 100) && hitInfo.transform.parent.CompareTag("Valid") && Input.GetTouch(0).tapCount == 1) {
                 Debug.Log("Select cube from hand");
-                Debug.Log("Place cube dt");
+                foreach (GameObject cube in hand) {
+                    DeactivateCube(cube);
+                }
                 PlaceCube(hitInfo.transform.parent.gameObject);
                 StartCoroutine(UpdateBoard(hitInfo.transform.parent.gameObject));
             }
@@ -85,10 +75,7 @@ public class HandManager : MonoBehaviour {
 
     IEnumerator UpdateBoard(GameObject cube) {
         playerTurn = false;
-        // Light up each cube that scores, in order, and play a sound
-        //List<Ray> rays;
-        //int cubeScore = ScoreManager.scoreManager.CalculateScore(cube, DetectNeighbors(chosenBoardPosition, out rays), rays);
-        //StartCoroutine(ShowCubeScore(cube, cubeScore)); // Will show the score once the cube is actually at the right position
+        // TODO: Light up each cube that scores, in order, and play a sound
 
         UpdateEmptySpaces(chosenBoardPosition);
         PlaceGrayCubes(percentGray);
@@ -175,11 +162,14 @@ public class HandManager : MonoBehaviour {
         ReorderCubes();
     }
 
+    /// <summary>
+    /// Reorder cubes in hand in rainbow order
+    /// </summary>
     void ReorderCubes() {
         float currCubePos = -((float)handSize / 2f - 0.5f) * (CubeBank.cubeSize + handSpacing);
         for (int i = 0; i < handSize; i++) {
             GameObject currCube = hand[i] as GameObject;
-            iTween.MoveTo(currCube, iTween.Hash("position", new Vector3(currCubePos, 0f, 0f), "islocal", true, "time", 1f));
+            iTween.MoveTo(currCube, iTween.Hash("position", new Vector3(currCubePos, 0f, 0f), "islocal", true, "time", 0.75f));
             currCube.transform.localRotation = Quaternion.identity;
             currCubePos += (CubeBank.cubeSize + handSpacing);
         }
@@ -200,21 +190,6 @@ public class HandManager : MonoBehaviour {
         hand.Remove(cube);
         choosing = false;
     }
-
-    //IEnumerator ShowCubeScore(GameObject cube, int cubeScore) {
-    //    yield return new WaitForSeconds(handCubeMoveSpeed - handCubeMoveSpeed * 0.2f);
-    //    GameObject text = Instantiate(Resources.Load("Prefabs/AmountScoredText3D"), cube.transform) as GameObject;
-    //    text.transform.localPosition = Vector3.up * 1.5f;
-    //    //text.transform.parent = mainCamera;
-    //    //text.transform.localRotation = Quaternion.identity;
-    //    text.GetComponent<TextMesh>().text = "+" + cubeScore;
-    //    StartCoroutine(HideCubeScore(text));
-    //}
-
-    //IEnumerator HideCubeScore(GameObject text) {
-    //    yield return new WaitForSeconds(1f);
-    //    Destroy(text);
-    //}
 
     /// <summary>
     /// Creates colored cubes on the gameboard as children of Hand giving them the colors 
@@ -288,11 +263,11 @@ public class HandManager : MonoBehaviour {
     void ActivateValidCubes(Vector3 positionToPlace) {
         List<GameObject> neighbors = DetectNeighbors(positionToPlace);
         foreach (GameObject cube in hand) {
-            DeactivateCube(cube);
             bool valid = false;
             foreach (GameObject neighbor in neighbors) {
                 if (!ColorManager.colorManager.InSequence(cube, neighbor)) {
                     valid = false;
+                    DeactivateCube(cube);
                     break;
                 } else {
                     valid = true;
@@ -306,13 +281,14 @@ public class HandManager : MonoBehaviour {
 
     void DeactivateCube(GameObject cube) {
         cube.tag = "Hand";
-        cube.transform.localPosition = new Vector3(cube.transform.localPosition.x, 0, 0);
+        Behaviour halo = (Behaviour)cube.GetComponent("Halo");
+        halo.enabled = false;
     }
 
     void ActivateCube(GameObject cube) {
         cube.tag = "Valid";
-        cube.transform.localPosition = new Vector3(cube.transform.localPosition.x, cube.transform.localPosition.y + 1, 0);
-        // Light up cube
+        Behaviour halo = (Behaviour)cube.GetComponent("Halo");
+        halo.enabled = true;
     }
 
     public void ChooseCube(Material colorOfNeighbor, Vector3 positionToPlace) {
