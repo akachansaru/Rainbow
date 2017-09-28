@@ -4,25 +4,31 @@ using UnityEngine;
 public class Cube : MonoBehaviour {
 
     private Touch touch;
-    static bool hitCube = false; // TODO: what is hitCube for? Double tapping?
+    static bool hitCube = false; // TODO: Need to have it check if ANY cube has been hit for that tap and not hit others
 
     void Update() {
 #if UNITY_ANDROID
         // When a cube on the board is tapped, HandManager is told that a cube from the hand can be chosen to play
-        if (HandManager.handManager.PlayerTurn && Input.touchCount == 1 && !CameraController.rotating) {
-            Ray ray = Camera.main.ScreenPointToRay(Input.GetTouch(0).position);
-            RaycastHit hitInfo;
-            // Got rid of double tapping to select
-            if (Physics.Raycast(ray, out hitInfo, 500) && hitInfo.transform.IsChildOf(transform) && Input.GetTouch(0).tapCount == 1 && !hitCube) {
-                hitCube = true;
-                Debug.DrawRay(ray.origin, ray.direction * 500, UnityEngine.Color.blue, 4f);
-                Debug.Log("Hit " + hitInfo.transform.name);
-                // Selected the location to place a cube from hand
-                HandManager.handManager.ChooseCube(GetComponent<MeshRenderer>().material, SelectedPosition(hitInfo));
-                //TODO: See if camera can go to "smart" position 
-                CameraController.cameraController.MoveCamera(gameObject, SelectedPosition(hitInfo));
-            } else if (!Physics.Raycast(ray, out hitInfo, 500)) {
-                Debug.DrawRay(ray.origin, ray.direction * 500, UnityEngine.Color.red, 2f);
+        if (Input.touchCount == 1) {
+            touch = Input.touches[0];
+            if (HandManager.handManager.PlayerTurn && touch.phase == TouchPhase.Began && !CameraController.rotating) {
+                Ray ray = Camera.main.ScreenPointToRay(Input.GetTouch(0).position);
+                RaycastHit hitInfo;
+               
+                // Got rid of double tapping to select
+                if (Physics.Raycast(ray, out hitInfo, 500) && hitInfo.transform.IsChildOf(transform) && touch.tapCount == 1 && !hitCube) {
+                    hitCube = true;
+                    Debug.DrawRay(ray.origin, ray.direction * 500, UnityEngine.Color.blue, 4f);
+                    Debug.Log("Hit " + hitInfo.transform.name);
+                    // Selected the location to place a cube from hand
+                    HandManager.handManager.ChooseCube(GetComponent<MeshRenderer>().material, SelectedPosition(hitInfo));
+                    //TODO: See if camera can go to "smart" position 
+                    CameraController.cameraController.MoveCamera(gameObject, SelectedPosition(hitInfo));
+                } 
+            } else if (touch.phase == TouchPhase.Ended || touch.phase == TouchPhase.Canceled) {
+                // Reset hitCube so another cube can be selected
+                Debug.Log("hitCube = false");
+                //Debug.DrawRay(ray.origin, ray.direction * 500, UnityEngine.Color.red, 2f);
                 hitCube = false;
             }
         }
