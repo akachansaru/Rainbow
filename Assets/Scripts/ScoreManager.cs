@@ -56,6 +56,7 @@ public class ScoreManager : MonoBehaviour {
         return cubeScore;
     }
 
+    // TODO: Light up each cube that scores, in order, and play a sound
     int ScoreChain(Ray ray, GameObject firstCube, GameObject secondCube, int chainScore, int chainNumber) {
         ray.origin += ray.direction;
         print("chainNumber: " + chainNumber + " chainScore: " + chainScore);
