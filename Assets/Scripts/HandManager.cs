@@ -75,7 +75,6 @@ public class HandManager : MonoBehaviour {
 
     IEnumerator UpdateBoard(GameObject cube) {
         playerTurn = false;
-        // TODO: Light up each cube that scores, in order, and play a sound
 
         UpdateEmptySpaces(chosenBoardPosition);
         PlaceGrayCubes(percentGray);

@@ -16,19 +16,6 @@ public class CameraController : MonoBehaviour {
     private float maxZoom = 20f;
     private float minZoom = 6f;
 
-    //public GameObject SelectedCube {
-    //    set {
-    //        selectedCube = value;
-    //        MoveCamera();
-    //    }
-    //}
-
-    //public Vector3 SelectedPosition {
-    //    set {
-    //        selectedPosition = value;
-    //    }
-    //}
-
     void Awake() {
         cameraController = this;
     }
@@ -37,9 +24,15 @@ public class CameraController : MonoBehaviour {
         transform.LookAt(_selectedCube.transform.position);
     }
 
+    // TODO: See if camera can go to "smart" position 
     public void MoveCamera(GameObject selectedCube, Vector3 selectedPosition) {
+        Debug.Log("Old cam pos: " + transform.position);
+        Debug.Log("Camera up: " + transform.up);
         Vector3 moveTo = (selectedCube.transform.position + (selectedPosition - selectedCube.transform.position) * cameraMoveDistance);
-        iTween.MoveTo(gameObject, iTween.Hash("position", moveTo, "looktarget", selectedCube.transform, "time", 2f, "name", "AutoCamera"));
+        Debug.Log("New cam pos: " + moveTo);
+        Debug.Log("Camera up: " + transform.up);
+        iTween.MoveTo(gameObject, iTween.Hash("position", moveTo, "looktarget", selectedCube.transform, "looktime", 1.25f,
+            "time", 1.25f, "easetype", "linear", "name", "AutoCamera"));
         _selectedCube = selectedCube;
     }
 
@@ -116,7 +109,6 @@ public class CameraController : MonoBehaviour {
     void PanView(Touch touch) {
         if (touch.phase == TouchPhase.Began) {
             iTween.StopByName("AutoCamera");
-            //rotating = true;
             initialClickPosition = touch.position;
         }
         if (touch.phase == TouchPhase.Moved) {
@@ -126,10 +118,8 @@ public class CameraController : MonoBehaviour {
             normalizedDelta.Normalize();
 
             // Translate the camera in the opposite direction to the swipe.
-            // ITween.MoveUpdate("looktarget", selectedCube.transform);
             transform.Translate(-normalizedDelta * Time.deltaTime * rotateSpeed);
             transform.LookAt(_selectedCube.transform, transform.up); // Need transform.up otherwise it tries to orient the camera to world up.
-            //iTween.LookUpdate(gameObject, selectedCube.transform.position, 0.5f);
         }
         if (touch.phase == TouchPhase.Ended) {
             rotating = false;

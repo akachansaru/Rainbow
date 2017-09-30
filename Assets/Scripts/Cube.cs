@@ -4,7 +4,7 @@ using UnityEngine;
 public class Cube : MonoBehaviour {
 
     private Touch touch;
-    static bool hitCube = false; // TODO: Need to have it check if ANY cube has been hit for that tap and not hit others
+    static bool hitCube = false;
 
     void Update() {
 #if UNITY_ANDROID
@@ -19,16 +19,12 @@ public class Cube : MonoBehaviour {
                 if (Physics.Raycast(ray, out hitInfo, 500) && hitInfo.transform.IsChildOf(transform) && touch.tapCount == 1 && !hitCube) {
                     hitCube = true;
                     Debug.DrawRay(ray.origin, ray.direction * 500, UnityEngine.Color.blue, 4f);
-                    Debug.Log("Hit " + hitInfo.transform.name);
                     // Selected the location to place a cube from hand
                     HandManager.handManager.ChooseCube(GetComponent<MeshRenderer>().material, SelectedPosition(hitInfo));
-                    //TODO: See if camera can go to "smart" position 
                     CameraController.cameraController.MoveCamera(gameObject, SelectedPosition(hitInfo));
                 } 
             } else if (touch.phase == TouchPhase.Ended || touch.phase == TouchPhase.Canceled) {
                 // Reset hitCube so another cube can be selected
-                Debug.Log("hitCube = false");
-                //Debug.DrawRay(ray.origin, ray.direction * 500, UnityEngine.Color.red, 2f);
                 hitCube = false;
             }
         }
@@ -75,14 +71,18 @@ public class Cube : MonoBehaviour {
     void DoOnPlaced(int cubeScore) {
         GetComponent<AudioSource>().Play();
         ShowCubeScore(cubeScore);
-        hitCube = false; //TODO: see if this fixes the static hitcube thing
+        hitCube = false;
     }
 
     void ShowCubeScore(int cubeScore) {
-        GameObject text = Instantiate(Resources.Load("Prefabs/AmountScoredText"), transform) as GameObject;
+        // TODO: make sure this change is better for the text showing up right
+        //GameObject text = Instantiate(Resources.Load("Prefabs/AmountScoredText"), transform) as GameObject;
+        GameObject text = Resources.Load("Prefabs/AmountScoredText") as GameObject;
+        
         text.transform.LookAt(Camera.main.transform);
         text.transform.localPosition = Vector3.up * 1.5f;
         text.GetComponent<TextMesh>().text = "+" + cubeScore;
+        text = Instantiate(text, transform) as GameObject;
         StartCoroutine(HideCubeScore(text));
     }
 
