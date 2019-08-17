@@ -13,6 +13,7 @@ public class ScoreManager : MonoBehaviour {
     public Text scoreText;
     public GameObject gameOverPanel;
     public Text finalScoreText;
+    public Text gameOverText;
 
     private bool outOfMoves = false;
     private bool savedScore = false;
@@ -35,6 +36,11 @@ public class ScoreManager : MonoBehaviour {
                 finalScoreText.text = "New High Score! " + score;
             } else {
                 finalScoreText.text = "Score: " + score;
+            }
+            if (outOfMoves) {
+                gameOverText.text = gameOverText.text + "moves";
+            } else {
+                gameOverText.text = gameOverText.text + "cubes";
             }
             gameOverPanel.SetActive(true);
             print("Game over");

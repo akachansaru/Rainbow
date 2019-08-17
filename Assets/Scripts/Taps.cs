@@ -8,9 +8,9 @@ public class Taps : MonoBehaviour {
     public static Touch touch;
     public GameObject tappedListItem;
 
-    private float tapTime = 0f;
-    private float shortTapMaxTime = 0.3f;
-    private float longTapMinTime = 0.4f;
+    //private float tapTime = 0f;
+    //private float shortTapMaxTime = 0.3f;
+    //private float longTapMinTime = 0.4f;
     //private bool hitListItem;
     //private GraphicRaycaster raycaster;
 

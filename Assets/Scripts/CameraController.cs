@@ -3,15 +3,21 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class CameraController : MonoBehaviour {
+    // TODO: add recenter button incase the view gets totally wacky
     public static CameraController cameraController;
 
     public float rotateSpeed = 2f;
     public float zoomSpeed = 0.5f;
     public int cameraMoveDistance = 7;
 
-    private GameObject _selectedCube;
-    //private Vector3 selectedPosition;
+    // For iTween camera movement
+    public iTween.EaseType easeType;
+    public float lookTime = 1f;
+    public float time = 1f;
+
     public static bool rotating = false;
+
+    private GameObject _selectedCube;
     private Vector2 initialClickPosition;
     private float maxZoom = 20f;
     private float minZoom = 6f;
@@ -24,15 +30,11 @@ public class CameraController : MonoBehaviour {
         transform.LookAt(_selectedCube.transform.position);
     }
 
-    // TODO: See if camera can go to "smart" position 
     public void MoveCamera(GameObject selectedCube, Vector3 selectedPosition) {
-        Debug.Log("Old cam pos: " + transform.position);
-        Debug.Log("Camera up: " + transform.up);
+        // TODO: make the selected cube appear in the middle of the screen when the camera movement is done
         Vector3 moveTo = (selectedCube.transform.position + (selectedPosition - selectedCube.transform.position) * cameraMoveDistance);
-        Debug.Log("New cam pos: " + moveTo);
-        Debug.Log("Camera up: " + transform.up);
-        iTween.MoveTo(gameObject, iTween.Hash("position", moveTo, "looktarget", selectedCube.transform, "looktime", 1.25f,
-            "time", 1.25f, "easetype", "linear", "name", "AutoCamera"));
+        iTween.MoveTo(gameObject, iTween.Hash("position", moveTo, "looktarget", selectedCube.transform, "looktime", lookTime,
+            "time", time, "easetype", easeType, "name", "AutoCamera"));
         _selectedCube = selectedCube;
     }
 
@@ -47,9 +49,6 @@ public class CameraController : MonoBehaviour {
         float touchDeltaMagPrev = (touchZeroPrevPos - touchOnePrevPos).magnitude;
         float touchDeltaMag = (touchZero.position - touchOne.position).magnitude;
         float deltaMagnitudeDiff = touchDeltaMag - touchDeltaMagPrev;
-
-        //GetComponent<Camera>().fieldOfView += deltaMagnitudeDiff * zoomSpeed;
-        //GetComponent<Camera>().fieldOfView = Mathf.Clamp(GetComponent<Camera>().fieldOfView, 40f, 120f);
 
         // Restrict the camera's zoom so it can't go too far or too close.
         RaycastHit hitInfo;
@@ -68,47 +67,13 @@ public class CameraController : MonoBehaviour {
         }
     }
 
-    //private float oldAngle = 0f;
-
-    void TwistToRotateZ() {
-        //Touch touchZero = Input.GetTouch(0);
-        //Touch touchOne = Input.GetTouch(1);
-
-        //float deltaMagnitudeDiff = touchDeltaMagPrev - touchDeltaMag;
-        //transform.rotation.z += deltaMagnitudeDiff * zoomSpeed;
-
-        //Vector2 v2 = Input.GetTouch(0).position - Input.GetTouch(1).position;
-        //float newAngle = Mathf.Atan2(v2.y, v2.x);
-        //float deltaAngle = Mathf.DeltaAngle(newAngle, oldAngle);
-        //oldAngle = newAngle;
-        //transform.Rotate(transform.forward, deltaAngle);
-    }
-
-    //void LateUpdate() {
-    //    float pinchAmount = 0;
-    //    Quaternion desiredRotation = transform.rotation;
-
-    //    DetectTouchMovement.Calculate();
-
-    //    if (Mathf.Abs(DetectTouchMovement.pinchDistanceDelta) > 0) { // zoom
-    //        pinchAmount = DetectTouchMovement.pinchDistanceDelta;
-    //    }
-
-    //    if (Mathf.Abs(DetectTouchMovement.turnAngleDelta) > 0) { // rotate
-    //        Vector3 rotationDeg = Vector3.zero;
-    //        rotationDeg.z = -DetectTouchMovement.turnAngleDelta;
-    //        desiredRotation *= Quaternion.Euler(rotationDeg);
-    //    }
-
-
-    //    // not so sure those will work:
-    //    transform.rotation = desiredRotation;
-    //    transform.position += Vector3.forward * pinchAmount;
-    //}
-
+    /// <summary>
+    /// For touch devices. One finger panning. Rotates around the current center.
+    /// </summary>
     void PanView(Touch touch) {
         if (touch.phase == TouchPhase.Began) {
-            iTween.StopByName("AutoCamera");
+            //iTween.StopByName("AutoCamera");
+            // TODO: when autoCamera is interupted there is a jump in the camera when panning starts
             initialClickPosition = touch.position;
         }
         if (touch.phase == TouchPhase.Moved) {
@@ -117,7 +82,7 @@ public class CameraController : MonoBehaviour {
             Vector2 normalizedDelta = currentClickPosition - initialClickPosition;
             normalizedDelta.Normalize();
 
-            // Translate the camera in the opposite direction to the swipe.
+            // Translate the camera in the opposite direction to the swipe while looking at the selected cube.
             transform.Translate(-normalizedDelta * Time.deltaTime * rotateSpeed);
             transform.LookAt(_selectedCube.transform, transform.up); // Need transform.up otherwise it tries to orient the camera to world up.
         }
@@ -125,24 +90,6 @@ public class CameraController : MonoBehaviour {
             rotating = false;
         }
     }
-
-    //void PanViewTwoFinger(Touch touch0, Touch touch1) {
-    //    if (touch0.phase == TouchPhase.Began || touch0.phase == TouchPhase.Began) {
-    //        //iTween.StopByName("AutoCamera");
-    //        //rotating = true;
-    //        initialClickPosition = touch.position;
-    //    }
-    //    if (touch.phase == TouchPhase.Moved) {
-    //        Vector2 currentClickPosition = touch.position;
-    //        Vector2 normalizedDelta = currentClickPosition - initialClickPosition;
-    //        normalizedDelta.Normalize();
-
-    //        // Translate the camera in the opposite direction to the swipe.
-    //        transform.Translate(-normalizedDelta * Time.deltaTime * rotateSpeed);
-    //        transform.LookAt(selectedCube.transform, transform.up); // Need transform.up otherwise it tries to orient the camera to world up.
-    //        //iTween.LookUpdate(gameObject, selectedCube.transform.position, 0.5f);
-    //    }
-    //}
 
     void Update() {
 #if UNITY_ANDROID
@@ -152,7 +99,6 @@ public class CameraController : MonoBehaviour {
             }
             if (Input.touchCount == 2) {
                 PinchToZoom(Input.GetTouch(0), Input.GetTouch(1));
-                TwistToRotateZ();
             }
         } else if (LevelManager.paused && rotating) {
             rotating = false;

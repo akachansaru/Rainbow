@@ -48,8 +48,7 @@ public class HandManager : MonoBehaviour {
         startingCube.tag = "Cube";
         startingCube.GetComponent<Cube>().enabled = true;
         CameraController.cameraController.MoveCamera(startingCube, Vector3.back);
-        //CameraController.cameraController.SelectedPosition = Vector3.back;
-        //CameraController.cameraController.SelectedCube = startingCube;
+        emptySpaces.Add(startingCube.transform.position);
         UpdateEmptySpaces(startingCube.transform.position);
         LevelManager.paused = false;
         FillHand(handSize);
@@ -64,7 +63,8 @@ public class HandManager : MonoBehaviour {
             if (Physics.Raycast(ray, out hitInfo, 100) && hitInfo.transform.parent.CompareTag("Valid") && Input.GetTouch(0).tapCount == 1) {
                 Debug.Log("Select cube from hand");
                 foreach (GameObject cube in hand) {
-                    DeactivateCube(cube);
+                    cube.GetComponent<Cube>().DeactivateCube();
+                    //DeactivateCube(cube);
                 }
                 PlaceCube(hitInfo.transform.parent.gameObject);
                 StartCoroutine(UpdateBoard(hitInfo.transform.parent.gameObject));
@@ -136,8 +136,7 @@ public class HandManager : MonoBehaviour {
     void PlaceGrayCubes(float percent) {
         int numGray = Mathf.RoundToInt(percent * emptySpaces.Count);
         for (int i = 0; i < numGray; i++) {
-            int rand = Random.Range(0, emptySpaces.Count);
-            Vector3 randomPosition = emptySpaces[rand];
+            Vector3 randomPosition = emptySpaces[Random.Range(0, emptySpaces.Count)];
             UpdateEmptySpaces(randomPosition);
             GameObject grayCube = Instantiate(CubeBank.cubePrefab);
             grayCube.GetComponent<MeshRenderer>().material = CubeBank.grayMaterial;
@@ -266,28 +265,16 @@ public class HandManager : MonoBehaviour {
             foreach (GameObject neighbor in neighbors) {
                 if (!ColorManager.colorManager.InSequence(cube, neighbor)) {
                     valid = false;
-                    DeactivateCube(cube);
+                    cube.GetComponent<Cube>().DeactivateCube();
                     break;
                 } else {
                     valid = true;
                 }
             }
             if (valid) {
-                ActivateCube(cube);
+                cube.GetComponent<Cube>().ActivateCube();
             }
         }
-    }
-
-    void DeactivateCube(GameObject cube) {
-        cube.tag = "Hand";
-        Behaviour halo = (Behaviour)cube.GetComponent("Halo");
-        halo.enabled = false;
-    }
-
-    void ActivateCube(GameObject cube) {
-        cube.tag = "Valid";
-        Behaviour halo = (Behaviour)cube.GetComponent("Halo");
-        halo.enabled = true;
     }
 
     public void ChooseCube(Material colorOfNeighbor, Vector3 positionToPlace) {

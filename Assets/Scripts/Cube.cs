@@ -8,14 +8,14 @@ public class Cube : MonoBehaviour {
 
     void Update() {
 #if UNITY_ANDROID
-        // When a cube on the board is tapped, HandManager is told that a cube from the hand can be chosen to play
+        // When a cube on the board is tapped, HandManager is told that a cube from the hand can be chosen to play. 
+        // The camera is rotated to look head on to the selected cube
         if (Input.touchCount == 1) {
             touch = Input.touches[0];
             if (HandManager.handManager.PlayerTurn && touch.phase == TouchPhase.Began && !CameraController.rotating) {
                 Ray ray = Camera.main.ScreenPointToRay(Input.GetTouch(0).position);
                 RaycastHit hitInfo;
-               
-                // Got rid of double tapping to select
+
                 if (Physics.Raycast(ray, out hitInfo, 500) && hitInfo.transform.IsChildOf(transform) && touch.tapCount == 1 && !hitCube) {
                     hitCube = true;
                     Debug.DrawRay(ray.origin, ray.direction * 500, UnityEngine.Color.blue, 4f);
@@ -29,6 +29,17 @@ public class Cube : MonoBehaviour {
             }
         }
 #endif
+    }
+
+    public void ActivateCube() {
+        gameObject.tag = "Valid";
+        Behaviour halo = (Behaviour)gameObject.GetComponent("Halo");
+        halo.enabled = true;
+    }
+    public void DeactivateCube() {
+        gameObject.tag = "Hand";
+        Behaviour halo = (Behaviour)gameObject.GetComponent("Halo");
+        halo.enabled = false;
     }
 
     Vector3 SelectedPosition(RaycastHit hitInfo) {
@@ -76,6 +87,7 @@ public class Cube : MonoBehaviour {
 
     void ShowCubeScore(int cubeScore) {
         // TODO: make sure this change is better for the text showing up right
+        // TODO: the text doesn't always show up in the right orientation
         //GameObject text = Instantiate(Resources.Load("Prefabs/AmountScoredText"), transform) as GameObject;
         GameObject text = Resources.Load("Prefabs/AmountScoredText") as GameObject;
         
